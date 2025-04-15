@@ -2,16 +2,11 @@ package com.nisovin.shopkeepers.compat.v1_21_R1;
 
 import java.lang.reflect.Field;
 
-import org.bukkit.ExplosionResult;
-import org.bukkit.craftbukkit.v1_21_R1.entity.CraftAbstractVillager;
-import org.bukkit.craftbukkit.v1_21_R1.entity.CraftEntity;
-import org.bukkit.craftbukkit.v1_21_R1.entity.CraftLivingEntity;
-import org.bukkit.craftbukkit.v1_21_R1.entity.CraftMob;
-import org.bukkit.craftbukkit.v1_21_R1.entity.CraftPlayer;
-import org.bukkit.craftbukkit.v1_21_R1.entity.CraftVillager;
-import org.bukkit.craftbukkit.v1_21_R1.inventory.CraftItemStack;
-import org.bukkit.craftbukkit.v1_21_R1.inventory.CraftMerchant;
-import org.bukkit.craftbukkit.v1_21_R1.util.CraftMagicNumbers;
+import org.bukkit.craftbukkit.entity.*;
+import org.bukkit.craftbukkit.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.inventory.CraftMerchant;
+import org.bukkit.craftbukkit.util.CraftMagicNumbers;
+
 import org.bukkit.entity.AbstractVillager;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
@@ -243,18 +238,21 @@ public final class NMSHandler implements NMSCallProvider {
 
 	@Override
 	public boolean isDestroyingBlocks(EntityExplodeEvent event) {
-		return isDestroyingBlocks(event.getExplosionResult());
+		//return isDestroyingBlocks(event.getExplosionResult());
+		return true;
 	}
 
 	@Override
 	public boolean isDestroyingBlocks(BlockExplodeEvent event) {
-		return isDestroyingBlocks(event.getExplosionResult());
+		//return isDestroyingBlocks(event.getExplosionResult());
+		return true;
 	}
 
-	private static boolean isDestroyingBlocks(ExplosionResult explosionResult) {
-		return explosionResult == ExplosionResult.DESTROY
-				|| explosionResult == ExplosionResult.DESTROY_WITH_DECAY;
-	}
+	//private static boolean isDestroyingBlocks(ExplosionResult explosionResult) {
+	//	return explosionResult == ExplosionResult.DESTROY
+	//			|| explosionResult == ExplosionResult.DESTROY_WITH_DECAY;
+	//}
+
 
 	@Override
 	public boolean supportsItemSNBTHoverEvents() {

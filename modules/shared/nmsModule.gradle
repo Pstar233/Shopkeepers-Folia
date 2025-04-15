@@ -1,8 +1,10 @@
 apply plugin: 'java-library'
 apply plugin: 'org.checkerframework'
 apply plugin: 'eclipse'
+apply plugin: 'io.papermc.paperweight.userdev'
 
-apply from: rootProject.file('modules/shared/specialSource.gradle')
+//apply from: rootProject.file('modules/shared/specialSource.gradle')
+
 
 ext {
 	// This needs to be defined by projects that apply this script.
@@ -13,18 +15,21 @@ ext {
 
 dependencies {
 	implementation project(':shopkeepers-main')
-	afterEvaluate {
-		if (remapServerCode) {
-			implementation "org.bukkit:craftbukkit:${craftbukkitVersion}:remapped-mojang"
-		} else {
-			implementation "org.bukkit:craftbukkit:${craftbukkitVersion}"
-		}
-	}
+	//paperweight.foliaDevBundle("1.20.6-R0.1-SNAPSHOT")
+	//paperweight.paperDevBundle("1.20.6-R0.1-SNAPSHOT")
+	//paperweight.paperDevBundle("1.21.1-R0.1-SNAPSHOT")
+
+	//implementation "org.bukkit:bukkit:${craftbukkitVersion}" 到时候版本换了 可以使用这个变量${craftbukkitVersion} 现在全局是 1.21.4-R0.1-SNAPSHOT
+	//implementation "io.papermc.paper:paper-api:1.21.1-R0.1-SNAPSHOT"
+
+	//paperweight.foliaDevBundle("1.20.6-R0.1-SNAPSHOT")
+	//paperweight.paperDevBundle(${craftbukkitVersion})
 
 	testImplementation libs.junit
 	testImplementation libs.asm
 }
 
+/*
 afterEvaluate {
 	if (remapServerCode) {
 		jar {
@@ -39,5 +44,6 @@ afterEvaluate {
 		}
 	}
 }
+*/
 
 // Note: The NMS modules are not published as standalone artifacts, but are shaded into the final plugin jar.

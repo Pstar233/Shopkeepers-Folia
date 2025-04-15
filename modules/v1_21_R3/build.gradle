@@ -1,3 +1,10 @@
 apply from: rootProject.file('modules/shared/nmsModule.gradle')
+apply plugin: 'io.papermc.paperweight.userdev'
 
-craftbukkitVersion = '1.21.3-R0.1-SNAPSHOT'
+//craftbukkitVersion = '1.21.3-R0.1-SNAPSHOT'
+
+dependencies {
+    testImplementation libs.junit
+    testImplementation libs.asm
+    paperweight.paperDevBundle("1.21.3-R0.1-SNAPSHOT")
+}
