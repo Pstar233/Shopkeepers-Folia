@@ -11,11 +11,7 @@ import java.util.function.Predicate;
 
 import com.nisovin.shopkeepers.util.taskqueue.TaskQueue;
 import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
-import org.bukkit.Bukkit;
-import org.bukkit.Chunk;
-import org.bukkit.Location;
-import org.bukkit.Server;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.bukkit.scheduler.BukkitTask;
@@ -35,6 +31,8 @@ import com.nisovin.shopkeepers.util.java.Validate;
 import com.nisovin.shopkeepers.util.logging.Log;
 import com.nisovin.shopkeepers.util.timer.Timer;
 import com.nisovin.shopkeepers.util.timer.Timings;
+
+import javax.swing.*;
 
 /**
  * Updates and keeps track of chunk activations for chunks that contain shopkeepers.
@@ -525,11 +523,11 @@ public class ShopkeeperChunkActivator {
 		assert chunkData != null;
 		ChunkCoords chunkCoords = chunkData.getChunkCoords();
 		if (!chunkData.isActive()) {
-			// The chunk is already inactive.
-			// Cancel any pending activations for the chunk:
-			// Note: This needs access to the chunk's previous 'should-be-active' state.
-			// This also resets the chunk's 'should-be-active' state, even if it is not pending a
-			// deferred chunk activation.
+			// 块已处于非活动状态。
+			//取消块的任何待处理激活：
+			//注意： 这需要访问 chunk 之前的 'should-be-active' 状态。
+			//这也会重置 chunk 的 'should-be-active' 状态，即使它没有等待
+			//延迟块激活。
 			this.cancelDeferredActivation(chunkData);
 			chunkData.cancelDelayedActivation();
 			return;
@@ -541,7 +539,7 @@ public class ShopkeeperChunkActivator {
 		// This also sets its 'should-be-inactive' state.
 		chunkData.setActive(false);
 
-		// Get the chunk shopkeepers:
+		// 获取 chunk 店主：
 		Collection<? extends AbstractShopkeeper> shopkeepers = shopkeeperRegistry.getShopkeepersInChunkSnapshot(chunkCoords);
 
 		Log.debug(DebugOptions.shopkeeperActivation,
@@ -646,10 +644,11 @@ public class ShopkeeperChunkActivator {
 
 	// WORLD UNLOAD
 
-	// Called by SKShopkeepersPlugin during disable, before the shopkeepers are unloaded.
+	// 在 disable 期间，在卸载 shopkeepers 之前由 SKShopkeepersPlugin 调用。
 	public void deactivateShopkeepersInAllWorlds() {
-		// Deactivate (despawn) shopkeepers in all loaded worlds:
+		// 在所有已加载的世界中停用（消失）店主：
 		List<? extends World> worlds = Unsafe.castNonNull(Bukkit.getWorlds());
+
 		worlds.forEach(this::deactivateChunks);
 	}
 
@@ -662,25 +661,25 @@ public class ShopkeeperChunkActivator {
 		assert world != null;
 		String worldName = world.getName();
 		int shopkeeperCount = shopkeeperRegistry.getShopkeepersInWorld(worldName).size();
-		if (shopkeeperCount == 0) return; // There are no shopkeepers in this world
+		if (shopkeeperCount == 0) return; // 这个世界上没有店主
 
 		Log.debug(DebugOptions.shopkeeperActivation,
 				() -> "Deactivating " + shopkeeperCount + " shopkeepers in world '" + worldName + "'"
 		);
 
-		// We need to iterate over a snapshot of these chunks, because the chunk map can change
-		// during iteration.
+		// 我们需要迭代这些 chunk 的快照，因为 chunk map 可能会发生变化
+		// 在迭代期间。
 		List<? extends ChunkCoords> chunks = new ArrayList<>(
 				shopkeeperRegistry.getShopkeepersByChunks(worldName).keySet()
 		);
 
-		// First, mark the chunks as 'should-be-inactive':
+		// 首先，将 chunk 标记为 'should-be-inactive'：
 		chunks.forEach(chunkCoords -> {
 			ChunkData chunkData = Unsafe.assertNonNull(this.getChunkData(chunkCoords));
 			chunkData.setShouldBeActive(false);
 		});
 
-		// Deactivate the chunks, unless their target activation state has changed in the meantime:
+		// 停用 chunk，除非它们的目标激活状态在此期间发生了变化：
 		chunks.forEach(this::deactivateChunkIfShouldBeInactive);
 	}
 

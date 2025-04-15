@@ -463,11 +463,11 @@ public class SKShopkeepersPlugin extends JavaPlugin implements InternalShopkeepe
 		// Inform UI registry about disable:
 		uiRegistry.onDisable();
 
-		// Deactivate (despawn) all shopkeepers (prior to saving shopkeepers data and before
-		// unloading all shopkeepers):
+		//停用（消失）所有店主（在保存店主数据之前和之前
+		//卸载所有店主）：
 		shopkeeperRegistry.getChunkActivator().deactivateShopkeepersInAllWorlds();
 
-		// Disable living entity shops:
+		// 禁用 Living 实体商店：
 		livingShops.onDisable();
 
 		// Disable block shops:
@@ -499,7 +499,7 @@ public class SKShopkeepersPlugin extends JavaPlugin implements InternalShopkeepe
 		// Item conversions:
 		itemConversions.onDisable();
 
-		// Regular villagers:
+		// 普通村民：
 		regularVillagers.onDisable();
 
 		shopkeeperNaming.onDisable();
@@ -507,7 +507,7 @@ public class SKShopkeepersPlugin extends JavaPlugin implements InternalShopkeepe
 
 		shopkeeperCreation.onDisable();
 
-		// Player shops:
+		// 玩家商店：
 		playerShops.onDisable();
 
 		commandTrading.onDisable();

@@ -98,18 +98,18 @@ public class ShopkeeperSpawner {
 	public void onDisable() {
 		HandlerList.unregisterAll(listener);
 
-		// Shutdown the spawn queue:
+		// 关闭生成队列：
 		spawnQueue.shutdown();
 
-		// We don't expect the plugin to be disabled or reloaded during world saves. Otherwise, if
-		// the plugin is reloaded, the shopkeepers might get immediately respawned while the world
-		// save is still in progress.
-		// However, during normal server shutdowns, the worlds might get saved and the plugin
-		// disabled before our respawn tasks are run.
-		// Cancel all pending world save respawn tasks:
+		// 我们不希望在世界保存期间禁用或重新加载该插件。否则，如果
+		//插件重新加载后，店主可能会立即重生，而世界
+		//保存仍在进行中。
+		//但是，在正常的服务器关闭期间，世界可能会被保存，并且插件
+		//disabled （禁用）。
+		//取消所有待处理的世界保存重生任务：
 		worlds.values().forEach(WorldData::cleanUp);
 
-		// Remove all cached world data:
+		// 删除所有缓存的世界数据：
 		worlds.clear();
 	}
 

@@ -281,32 +281,33 @@ public class LivingEntityAI implements Listener {
 	}
 
 	public void removeShopObject(SKLivingShopObject<?> shopObject) {
-		Validate.State.isTrue(!currentlyRunning,
-				"Cannot remove entities while the AI task is running!");
-		// Remove shop object:
-		@Nullable EntityData entityData = shopObjects.remove(shopObject);
-		if (entityData == null) return; // Shop object was not added
+		// 添加了 互斥锁  synchronized
+		synchronized (shopObject) {
+			// Remove shop object:
+			@Nullable EntityData entityData = shopObjects.remove(shopObject);
+			if (entityData == null) return; // Shop object was not added
 
-		ChunkData chunkData = entityData.chunkData;
-		chunkData.entities.remove(entityData);
-		if (chunkData.entities.isEmpty()) {
-			chunks.remove(chunkData.chunkCoords);
+			ChunkData chunkData = entityData.chunkData;
+			chunkData.entities.remove(entityData);
+			if (chunkData.entities.isEmpty()) {
+				chunks.remove(chunkData.chunkCoords);
 
-			// Update chunk statistics:
+				// Update chunk statistics:
+				if (chunkData.activeAI) {
+					activeAIChunksCount--;
+				}
+				if (chunkData.activeGravity) {
+					activeGravityChunksCount--;
+				}
+			}
+
+			// Update entity statistics:
 			if (chunkData.activeAI) {
-				activeAIChunksCount--;
+				activeAIEntityCount--;
 			}
 			if (chunkData.activeGravity) {
-				activeGravityChunksCount--;
+				activeGravityEntityCount--;
 			}
-		}
-
-		// Update entity statistics:
-		if (chunkData.activeAI) {
-			activeAIEntityCount--;
-		}
-		if (chunkData.activeGravity) {
-			activeGravityEntityCount--;
 		}
 	}
 
