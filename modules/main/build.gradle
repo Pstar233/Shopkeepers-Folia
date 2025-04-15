@@ -8,15 +8,17 @@ plugins {
 
 repositories {
 	// WorldGuard
-	maven { url = 'https://maven.enginehub.org/repo/' }
+	maven { url 'https://maven.enginehub.org/repo/' }
 	// Citizens
-	maven { url = 'https://maven.citizensnpcs.co/repo' }
+	maven { url 'https://maven.citizensnpcs.co/repo' }
 	// bStats
-	maven { url = 'https://repo.codemc.org/repository/maven-public/' }
+	maven { url 'https://repo.codemc.org/repository/maven-public/' }
 	// Towny
-	maven { url = 'https://repo.glaremasters.me/repository/towny/' }
+	maven { url 'https://repo.glaremasters.me/repository/towny/' }
 	// Towny alternative (needs a different group id), VaultAPI
-	maven { url = 'https://jitpack.io' }
+	maven { url 'https://jitpack.io' }
+	// Paper api
+	maven { url 'https://repo.papermc.io/repository/maven-public/' }
 }
 
 configurations {
@@ -38,7 +40,8 @@ dependencies {
 	// compileOnly: Omits these dependencies from the transitively inherited apiElements and
 	// runtimeElements. However, we need to manually add these dependencies to our test dependencies
 	// if needed.
-	compileOnly libs.spigot.api // Includes the Bukkit API
+	//compileOnly libs.spigot.api // Includes the Bukkit API
+	compileOnly libs.paper.api
 	compileOnly libs.worldguard.bukkit
 	compileOnly libs.towny
 	(compileOnly libs.citizens.main) { transitive = false }
@@ -47,14 +50,11 @@ dependencies {
 
 	shaded libs.bstats.bukkit
 
-	testImplementation libs.spigot.api
+	//testImplementation libs.spigot.api
 	testImplementation libs.junit
 	testImplementation libs.hamcrest
-	(testImplementation libs.craftbukkit) {
-		artifact {
-			classifier = 'remapped-mojang'
-		}
-	}
+	testImplementation libs.paper.api
+
 }
 
 // Note: There is no need to remap the test classes to run them.
@@ -108,7 +108,7 @@ shadowJar {
 
 configureShadowArtifacts(project)
 
-// Copies the project's jars into the build folder of the root project.
+// 将项目的 jar 复制到根项目的 build 文件夹中。
 task copyResults(type: Copy) {
 	from shadowJar
 	into rootProject.buildDir
