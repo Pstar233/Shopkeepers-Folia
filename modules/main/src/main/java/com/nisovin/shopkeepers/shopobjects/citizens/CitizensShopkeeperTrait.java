@@ -5,6 +5,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.nisovin.shopkeepers.SKShopkeepersPlugin;
@@ -134,10 +135,15 @@ public class CitizensShopkeeperTrait extends Trait {
 
 		// Giving citizens some time to properly initialize the trait and NPC:
 		// Also: Shopkeeper creation by a player is handled after trait attachment.
-		Bukkit.getScheduler().runTaskLater(SKShopkeepersPlugin.getInstance(), () -> {
-			// Create a new shopkeeper if there isn't one already for this NPC (without creator):
+		Bukkit.getGlobalRegionScheduler().runDelayed(SKShopkeepersPlugin.getInstance(), task -> {
+			// 如果此 NPC 还没有新的店主（没有创建者），请创建一个新的店主：
 			this.createShopkeeperIfMissing(null);
 		}, 5L);
+
+		//Bukkit.getScheduler().runTaskLater(SKShopkeepersPlugin.getInstance(), () -> {
+		//	// Create a new shopkeeper if there isn't one already for this NPC (without creator):
+		//	this.createShopkeeperIfMissing(null);
+		//}, 5L);
 	}
 
 	// Creator can be null.
@@ -223,12 +229,10 @@ public class CitizensShopkeeperTrait extends Trait {
 				TextUtils.sendMessage(creator, ChatColor.RED + shopkeeperCreationError);
 			}
 
-			// Note: We don't trigger a save of the NPC data when the trait is manually added, so we
-			// also don't trigger a save when we remove the trait again here.
-			Bukkit.getScheduler().runTask(
-					plugin,
-					() -> npc.removeTrait(CitizensShopkeeperTrait.class)
-			);
+			//注意：手动添加 trait 时，我们不会触发 NPC 数据的保存，因此我们
+			//此外，当我们在此处再次删除 trait 时，请勿触发 Save。
+			Bukkit.getGlobalRegionScheduler().run(plugin, task -> npc.removeTrait(CitizensShopkeeperTrait.class));
+			//Bukkit.getScheduler().runTask(plugin, () -> npc.removeTrait(CitizensShopkeeperTrait.class)); 弃用
 		}
 	}
 }

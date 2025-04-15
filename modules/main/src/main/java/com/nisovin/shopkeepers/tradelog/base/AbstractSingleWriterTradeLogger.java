@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -56,7 +57,7 @@ public abstract class AbstractSingleWriterTradeLogger implements TradeLogger {
 
 	private List<TradeRecord> pending = new ArrayList<>();
 	private final SaveTask saveTask;
-	private @Nullable BukkitTask delayedSaveTask = null;
+	private @Nullable ScheduledTask delayedSaveTask = null;
 	// This is reset to the current configuration value prior to every save. This ensures that the
 	// value of this setting remains constant during the save and does not differ for the items of
 	// the trades that are being saved as part of the same batch.

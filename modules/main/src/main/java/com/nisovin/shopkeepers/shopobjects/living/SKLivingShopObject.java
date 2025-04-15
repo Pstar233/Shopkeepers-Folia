@@ -4,8 +4,10 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
+import com.nisovin.shopkeepers.api.ShopkeepersPlugin;
 import org.bukkit.Bukkit;
 import org.bukkit.Difficulty;
 import org.bukkit.Location;
@@ -69,6 +71,7 @@ import com.nisovin.shopkeepers.util.inventory.PotionUtils;
 import com.nisovin.shopkeepers.util.java.CyclicCounter;
 import com.nisovin.shopkeepers.util.java.RateLimiter;
 import com.nisovin.shopkeepers.util.logging.Log;
+import org.jetbrains.annotations.NotNull;
 
 public class SKLivingShopObject<E extends LivingEntity>
 		extends AbstractEntityShopObject implements LivingShopObject {
@@ -309,18 +312,22 @@ public class SKLivingShopObject<E extends LivingEntity>
 	protected void cleanUpEntity() {
 		Entity entity = Unsafe.assertNonNull(this.entity);
 
-		// Disable AI:
-		this.cleanupAI();
+		Location location = new Location(entity.getLocation().getWorld(), entity.getX(), entity.getY(), entity.getZ());
+		Bukkit.getRegionScheduler().run(ShopkeepersPlugin.getInstance(), location, task -> {
 
-		// Remove metadata again:
-		ShopkeeperMetadata.remove(entity);
+			// 禁用 AI：
+			this.cleanupAI();
 
-		// Remove the entity (if it hasn't been removed already):
-		if (!entity.isDead()) {
-			entity.remove();
-		}
+			// 再次删除元数据：
+			ShopkeeperMetadata.remove(entity);
 
-		this.entity = null;
+			// 删除实体（如果尚未删除）：
+			if (!entity.isDead()) {
+				entity.remove();
+			}
+
+			this.entity = null;
+		});
 	}
 
 	@SuppressWarnings("unchecked")
@@ -566,15 +573,15 @@ public class SKLivingShopObject<E extends LivingEntity>
 	}
 
 	@Override
-	public boolean move() {
+	public @NotNull CompletableFuture<Boolean> move() {
 		Entity entity = this.entity;
-		if (entity == null) return false; // Ignore if not spawned
+		if (entity == null) return CompletableFuture.completedFuture(false); // Ignore if not spawned
 
 		Location spawnLocation = this.getSpawnLocation();
-		if (spawnLocation == null) return false;
+		if (spawnLocation == null) return CompletableFuture.completedFuture(false);
 
 		this.lastSpawnLocation = spawnLocation;
-		boolean teleportSuccess = SKShopkeepersPlugin.getInstance().getForcingEntityTeleporter().teleport(entity, spawnLocation);
+		@NotNull CompletableFuture<Boolean> teleportSuccess = SKShopkeepersPlugin.getInstance().getForcingEntityTeleporter().teleport(entity, spawnLocation);
 
 		// Inform the AI system:
 		livingShops.getLivingEntityAI().updateLocation(this);

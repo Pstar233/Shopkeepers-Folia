@@ -3,6 +3,8 @@ package com.nisovin.shopkeepers.util.bukkit;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
+import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
+import net.citizensnpcs.api.ai.tree.IfElse;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.IllegalPluginAccessException;
 import org.bukkit.plugin.Plugin;
@@ -18,6 +20,9 @@ import com.nisovin.shopkeepers.util.java.Validate;
 public final class SchedulerUtils {
 
 	public static int getActiveAsyncTasks(Plugin plugin) {
+		// 始终返回 0
+		if (true) return 0;
+
 		Validate.notNull(plugin, "plugin is null");
 		int workers = 0;
 		for (BukkitWorker worker : Bukkit.getScheduler().getActiveWorkers()) {
@@ -66,22 +71,24 @@ public final class SchedulerUtils {
 		}
 	}
 
-	public static @Nullable BukkitTask runTaskOrOmit(Plugin plugin, Runnable task) {
+	public static @Nullable ScheduledTask runTaskOrOmit(Plugin plugin, Runnable task) {
 		return runTaskLaterOrOmit(plugin, task, 0L);
 	}
 
-	public static @Nullable BukkitTask runTaskLaterOrOmit(
+	public static @Nullable ScheduledTask runTaskLaterOrOmit(
 			Plugin plugin,
 			Runnable task,
 			long delay
 	) {
 		validatePluginTask(plugin, task);
-		// Tasks can only be registered while enabled:
+		// 任务只能在启用时注册：
 		if (plugin.isEnabled()) {
 			try {
-				return Bukkit.getScheduler().runTaskLater(plugin, task, delay);
+				if (delay <= 0 ) delay = 1;
+				return Bukkit.getGlobalRegionScheduler().runDelayed(plugin, task1 -> task.run(),delay);
+				//return Bukkit.getScheduler().runTaskLater(plugin, task, delay); 弃用
 			} catch (IllegalPluginAccessException e) {
-				// Couldn't register task: The plugin got disabled just now.
+				// 无法注册任务：插件刚才被禁用。
 			}
 		}
 		return null;

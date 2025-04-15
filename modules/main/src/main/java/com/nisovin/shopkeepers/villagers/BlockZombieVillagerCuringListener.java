@@ -17,7 +17,7 @@ import com.nisovin.shopkeepers.util.bukkit.TextUtils;
 import com.nisovin.shopkeepers.util.logging.Log;
 
 /**
- * Prevents curing of zombie villagers.
+ * 防止僵尸村民被治愈
  */
 public class BlockZombieVillagerCuringListener implements Listener {
 

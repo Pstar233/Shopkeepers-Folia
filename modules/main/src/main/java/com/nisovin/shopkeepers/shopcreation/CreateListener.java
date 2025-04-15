@@ -318,12 +318,17 @@ class CreateListener implements Listener {
 					// Reset selected container:
 					containerSelection.selectContainer(player, null);
 
-					// Manually remove creation item from player's hand after this event is
+					// 在此事件后手动从玩家的手上移除创建物品
 					// processed:
-					Bukkit.getScheduler().runTask(plugin, () -> {
+					Bukkit.getGlobalRegionScheduler().run(plugin, task -> {
 						ItemStack newItemInMainHand = ItemUtils.decreaseItemAmount(itemInHand, 1);
 						player.getInventory().setItemInMainHand(newItemInMainHand);
 					});
+
+					//Bukkit.getScheduler().runTask(plugin, () -> {
+					//	ItemStack newItemInMainHand = ItemUtils.decreaseItemAmount(itemInHand, 1);
+					//	player.getInventory().setItemInMainHand(newItemInMainHand);
+					//});
 				}
 			}
 		}

@@ -13,6 +13,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.plugin.Plugin;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
@@ -257,11 +258,17 @@ public abstract class AbstractPlayerShopkeeper
 
 				ShopkeeperNaming shopkeeperNaming = SKShopkeepersPlugin.getInstance().getShopkeeperNaming();
 				if (shopkeeperNaming.requestNameChange(player, this, newName)) {
-					// Manually remove rename item from player's hand after this event is processed:
-					Bukkit.getScheduler().runTask(ShopkeepersPlugin.getInstance(), () -> {
+					// 在处理此事件后，手动从玩家的手上移除重命名物品：
+					Bukkit.getGlobalRegionScheduler().run(ShopkeepersPlugin.getInstance(), task -> {
 						ItemStack newItemInMainHand = ItemUtils.decreaseItemAmount(itemInMainHand, 1);
 						playerInventory.setItemInMainHand(newItemInMainHand);
 					});
+
+					// 弃用
+					//Bukkit.getScheduler().runTask(ShopkeepersPlugin.getInstance(), () -> {
+					//	ItemStack newItemInMainHand = ItemUtils.decreaseItemAmount(itemInMainHand, 1);
+					//	playerInventory.setItemInMainHand(newItemInMainHand);
+					//});
 				}
 				return;
 			}

@@ -2,6 +2,7 @@ package com.nisovin.shopkeepers.shopobjects;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 import org.bukkit.Location;
 import org.bukkit.Particle;
@@ -38,6 +39,7 @@ import com.nisovin.shopkeepers.util.data.serialization.DataSerializer;
 import com.nisovin.shopkeepers.util.data.serialization.InvalidDataException;
 import com.nisovin.shopkeepers.util.data.serialization.java.StringSerializers;
 import com.nisovin.shopkeepers.util.java.Validate;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Abstract base class for all shop object implementations.
@@ -396,30 +398,30 @@ public abstract class AbstractShopObject implements ShopObject {
 	public abstract @Nullable Location getLocation();
 
 	/**
-	 * Teleports this shop object to its intended spawn location.
-	 * <p>
-	 * This can be used to move the shop object after the {@link Shopkeeper#getLocation() location}
-	 * of its associated shopkeeper has changed. This behaves similar to {@link #respawn()}, but may
-	 * be implemented more efficiently since it does not necessarily require the shop object to be
-	 * respawned.
-	 * <p>
-	 * This method has no effect if the world of the shopkeeper's location is not loaded currently.
-	 * <p>
-	 * If this type of shop object handles its {@link AbstractShopObjectType#mustBeSpawned()
-	 * spawning} itself, this may need to spawn the shop object (e.g. if its new location is in a
-	 * loaded chunk). Otherwise, the shop object can ignore the call to this method if it is not
-	 * {@link #isSpawned() spawned} currently.
-	 * <p>
-	 * Note: There is intentionally no method to teleport a shop object to a specific location,
-	 * because the location of a shop object is meant to always match the location of its associated
-	 * shopkeeper. If a shop object is able to change its location independently of the location of
-	 * its shopkeeper, it is required to manually
-	 * {@link AbstractShopkeeper#setLocation(Location, BlockFace) update} the location of the
-	 * shopkeeper in order to keep it synchronized.
-	 * 
-	 * @return <code>true</code> if the shop object was successfully moved
-	 */
-	public abstract boolean move();
+     * Teleports this shop object to its intended spawn location.
+     * <p>
+     * This can be used to move the shop object after the {@link Shopkeeper#getLocation() location}
+     * of its associated shopkeeper has changed. This behaves similar to {@link #respawn()}, but may
+     * be implemented more efficiently since it does not necessarily require the shop object to be
+     * respawned.
+     * <p>
+     * This method has no effect if the world of the shopkeeper's location is not loaded currently.
+     * <p>
+     * If this type of shop object handles its {@link AbstractShopObjectType#mustBeSpawned()
+     * spawning} itself, this may need to spawn the shop object (e.g. if its new location is in a
+     * loaded chunk). Otherwise, the shop object can ignore the call to this method if it is not
+     * {@link #isSpawned() spawned} currently.
+     * <p>
+     * Note: There is intentionally no method to teleport a shop object to a specific location,
+     * because the location of a shop object is meant to always match the location of its associated
+     * shopkeeper. If a shop object is able to change its location independently of the location of
+     * its shopkeeper, it is required to manually
+     * {@link AbstractShopkeeper#setLocation(Location, BlockFace) update} the location of the
+     * shopkeeper in order to keep it synchronized.
+     *
+     * @return <code>true</code> if the shop object was successfully moved
+     */
+	public abstract @NotNull CompletableFuture<Boolean> move();
 
 	// TICKING
 

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
@@ -60,7 +61,7 @@ class CitizensListener implements Listener {
 		private @Nullable CitizensShopkeeperTrait pendingTrait = null;
 		// The task which handles the pending trait if we don't end up handling it within the
 		// current tick:
-		private @Nullable BukkitTask pendingTraitTask = null;
+		private @Nullable ScheduledTask pendingTraitTask = null;
 
 		PendingTraitState(ShopkeepersPlugin plugin) {
 			assert plugin != null;
@@ -138,10 +139,16 @@ class CitizensListener implements Listener {
 				// just in case.
 				assert pendingTraitTask == null;
 				if (pendingTraitTask == null || Unsafe.assertNonNull(pendingTraitTask).isCancelled()) {
-					pendingTraitTask = Bukkit.getScheduler().runTaskLater(plugin, () -> {
+
+					pendingTraitTask = Bukkit.getGlobalRegionScheduler().runDelayed(plugin, task -> {
 						pendingTraitTask = null; // Reset
 						reset(); // Handles any currently pending trait
 					}, 1L);
+
+					//pendingTraitTask = Bukkit.getScheduler().runTaskLater(plugin, () -> {
+					//	pendingTraitTask = null; // Reset
+					//	reset(); // Handles any currently pending trait
+					//}, 1L);
 				} // Else: There is already an active task that will handle the pending trait later.
 			}
 		}

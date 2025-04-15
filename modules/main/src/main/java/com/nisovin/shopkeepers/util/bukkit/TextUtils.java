@@ -494,7 +494,8 @@ public final class TextUtils {
 		// Note: This might not necessarily match the name that is usually displayed for an
 		// ItemStack, but rather the translated item type name (for example for items such as
 		// different types of potions, skulls, etc.).
-		String translationKey = material.getTranslationKey();
+		//String translationKey = material.getTranslationKey() 已弃用
+		String translationKey = material.translationKey();
 		// We use the formatted name as fallback.
 		return Text.translatable(translationKey).child(formattedName).getRoot();
 	}

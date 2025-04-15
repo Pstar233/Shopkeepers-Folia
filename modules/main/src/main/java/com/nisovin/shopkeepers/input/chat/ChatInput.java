@@ -59,7 +59,8 @@ public class ChatInput extends InputManager<String> implements Listener {
 		// Get the message:
 		String message = event.getMessage();
 
-		// Process the request on the server's main thread:
-		Bukkit.getScheduler().runTask(plugin, () -> request.onInput(message));
+		// 在服务器的主线程上处理请求:
+		Bukkit.getGlobalRegionScheduler().run(plugin, task -> request.onInput(message));
+		//Bukkit.getScheduler().runTask(plugin, () -> request.onInput(message)); 弃用
 	}
 }

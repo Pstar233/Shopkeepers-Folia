@@ -2,11 +2,13 @@ buildscript {
 	repositories {
 		mavenCentral()
 	}
-}
 
-def specialSourceConfig = buildscript.configurations.detachedConfiguration(
-	buildscript.dependencies.create("net.md-5:SpecialSource:1.11.4:shaded")
-)
+	configurations.create('specialSource')
+
+	dependencies {
+		specialSource 'net.md-5:SpecialSource:1.11.4:shaded'
+	}
+}
 
 // Spigot server code remapping: https://www.spigotmc.org/threads/spigot-bungeecord-1-17-1-17-1.510208/
 // These dependencies and mappings are installed into the local Maven repository when BuildTools builds the Spigot dependencies.
@@ -16,47 +18,45 @@ def remappedObf = new File(m2Repo, 'org/spigotmc/spigot/{craftbukkitVersion}/spi
 def mojangMappings = new File(m2Repo, 'org/spigotmc/minecraft-server/{craftbukkitVersion}/minecraft-server-{craftbukkitVersion}-maps-mojang.txt').path
 def spigotMappings = new File(m2Repo, 'org/spigotmc/minecraft-server/{craftbukkitVersion}/minecraft-server-{craftbukkitVersion}-maps-spigot.csrg').path
 
-def specialSource = specialSourceConfig.incoming.artifactView {
-	componentFilter {
-		it.group == 'net.md-5' && it.module == 'SpecialSource'
-	}
-}.files.first().path
+def specialSource = buildscript.configurations.specialSource.resolvedConfiguration.getFirstLevelModuleDependencies {
+	it.group == 'net.md-5' && it.name == 'SpecialSource'
+}.first().moduleArtifacts.first().file.path
 
-// Converts from Mojang's mappings to Minecraft's obfuscated mappings.
+// 从 Mojang 的映射转换为 Minecraft 的混淆映射。
 ext.remapMojangToObfuscated = { inputFile, outputFile, craftbukkitVersion ->
 	println '> remapMojangToObfuscated'
 	println '  Input: ' + inputFile.path
 	println '  Output: ' + outputFile.path
 	println '  CraftBukkit version: ' + craftbukkitVersion
 	def classpathSeparator = System.properties['path.separator']
-	providers.exec {
+	exec {
 		commandLine 'java',
-			'-cp', "${specialSource}${classpathSeparator}${remappedMojang}".replace('{craftbukkitVersion}', craftbukkitVersion),
-			'net.md_5.specialsource.SpecialSource',
-			'--live',
-			'-i', inputFile.path,
-			'-o', outputFile.path,
-			'-m', mojangMappings.replace('{craftbukkitVersion}', craftbukkitVersion),
-			'--reverse'
-	}.result.get() // Trigger
+				'-cp', "${specialSource}${classpathSeparator}${remappedMojang}".replace('{craftbukkitVersion}', craftbukkitVersion),
+				'net.md_5.specialsource.SpecialSource',
+				'--live',
+				'-i', inputFile.path,
+				'-o', outputFile.path,
+				'-m', mojangMappings.replace('{craftbukkitVersion}', craftbukkitVersion),
+				'--reverse'
+	}
 }
 
-// Converts from Minecraft's obfuscated mappings to Spigot's mappings.
+// 从 Minecraft 的混淆映射转换为 Spigot 的映射。
 ext.remapObfuscatedToSpigot = { inputFile, outputFile, craftbukkitVersion ->
 	println '> remapObfuscatedToSpigot'
 	println '  Input: ' + inputFile.path
 	println '  Output: ' + outputFile.path
 	println '  CraftBukkit version: ' + craftbukkitVersion
 	def classpathSeparator = System.properties['path.separator']
-	providers.exec {
+	exec {
 		commandLine 'java',
-			'-cp', "${specialSource}${classpathSeparator}${remappedObf}".replace('{craftbukkitVersion}', craftbukkitVersion),
-			'net.md_5.specialsource.SpecialSource',
-			'--live',
-			'-i', inputFile.path,
-			'-o', outputFile.path,
-			'-m', spigotMappings.replace('{craftbukkitVersion}', craftbukkitVersion)
-	}.result.get() // Trigger
+				'-cp', "${specialSource}${classpathSeparator}${remappedObf}".replace('{craftbukkitVersion}', craftbukkitVersion),
+				'net.md_5.specialsource.SpecialSource',
+				'--live',
+				'-i', inputFile.path,
+				'-o', outputFile.path,
+				'-m', spigotMappings.replace('{craftbukkitVersion}', craftbukkitVersion)
+	}
 }
 
 // Converts from Mojang's mappings to Spigot's mappings.

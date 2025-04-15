@@ -1,5 +1,6 @@
 package com.nisovin.shopkeepers.shopobjects.block.base;
 
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 import org.bukkit.Location;
@@ -18,6 +19,7 @@ import com.nisovin.shopkeepers.shopobjects.block.AbstractBlockShopObject;
 import com.nisovin.shopkeepers.util.java.CyclicCounter;
 import com.nisovin.shopkeepers.util.java.RateLimiter;
 import com.nisovin.shopkeepers.util.logging.Log;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Extension of {@link AbstractBlockShopObject} with additional common block spawning and setup
@@ -202,9 +204,9 @@ public abstract class BaseBlockShopObject extends AbstractBlockShopObject {
 	}
 
 	@Override
-	public boolean move() {
-		if (!this.isSpawned()) return false;
-		return this.respawn();
+	public @NotNull CompletableFuture<Boolean> move() {
+		if (!this.isSpawned()) return CompletableFuture.completedFuture(false);
+		return CompletableFuture.completedFuture(this.respawn());
 	}
 
 	// TICKING

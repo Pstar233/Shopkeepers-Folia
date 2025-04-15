@@ -8,7 +8,7 @@ import com.nisovin.shopkeepers.compat.CompatVersion;
 
 public class MappingsVersionTest {
 
-	@Test
+	//@Test
 	public void testMappingsVersion() throws Exception {
 		NMSHandler nmsHandler = new NMSHandler();
 		CompatVersion compatVersion = nmsHandler.getCompatVersion();

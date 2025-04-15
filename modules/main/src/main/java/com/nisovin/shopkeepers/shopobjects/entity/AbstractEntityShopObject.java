@@ -1,5 +1,7 @@
 package com.nisovin.shopkeepers.shopobjects.entity;
 
+import com.nisovin.shopkeepers.api.ShopkeepersPlugin;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.checkerframework.checker.nullness.qual.Nullable;

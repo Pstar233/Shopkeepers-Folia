@@ -179,8 +179,9 @@ public class CitizensShops {
 		Bukkit.getPluginManager().registerEvents(citizensListener, plugin);
 		citizensListener.onEnable();
 
-		// Delayed to run after shopkeepers and NPCs were loaded:
-		Bukkit.getScheduler().runTaskLater(plugin, new DelayedSetupTask(), 3L);
+		// 延迟在店主和 NPC 加载后运行：
+		Bukkit.getGlobalRegionScheduler().runDelayed(plugin, task -> new  DelayedSetupTask(), 3L *50);
+		//Bukkit.getScheduler().runTaskLater(plugin, new DelayedSetupTask(), 3L); 弃用
 
 		// Enabled:
 		citizensShopsEnabled = true;

@@ -1,5 +1,6 @@
 package com.nisovin.shopkeepers.debug.trades;
 
+import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import org.bukkit.Bukkit;
 import org.bukkit.Statistic;
 import org.bukkit.entity.EntityType;
@@ -51,7 +52,7 @@ public class TradingCountListener implements Listener {
 
 	private @Nullable Player tradingPlayer = null;
 	private int tradeCounter = 0;
-	private @Nullable BukkitTask stopListeningTask = null;
+	private @Nullable ScheduledTask stopListeningTask = null;
 
 	public TradingCountListener(ShopkeepersPlugin plugin) {
 		Validate.notNull(plugin, "plugin is null");
@@ -74,7 +75,8 @@ public class TradingCountListener implements Listener {
 		Log.debug("Listening for non-shopkeeper trades of player " + tradingPlayer.getName()
 				+ " ...");
 		this.tradingPlayer = tradingPlayer;
-		stopListeningTask = Bukkit.getScheduler().runTask(plugin, stopListeningAction);
+		stopListeningTask = Bukkit.getGlobalRegionScheduler().run(plugin, task ->  stopListeningAction.run());
+		//stopListeningTask = Bukkit.getScheduler().runTask(plugin, stopListeningAction);
 	}
 
 	private void stopListeningForTrades() {

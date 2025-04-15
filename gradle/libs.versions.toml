@@ -5,7 +5,8 @@ bukkit = "1.20.6-R0.1-SNAPSHOT"
 spigot = "1.20.6-R0.1-SNAPSHOT"
 # Corresponding CraftBukkit version. Only required for testing.
 # Individual NMS modules can use other CraftBukkit versions.
-craftbukkit = "1.20.6-R0.1-SNAPSHOT"
+#craftbukkit = "1.20.6-R0.1-SNAPSHOT"
+paper = "1.21.4-R0.1-SNAPSHOT"
 
 jdtannotations = "2.3.0"
 nonpe = "1.0.3"
@@ -24,7 +25,8 @@ asm = "9.7"
 [libraries]
 bukkit = { module = "org.bukkit:bukkit", version.ref = "bukkit" }
 spigot-api = { module = "org.spigotmc:spigot-api", version.ref = "spigot" }
-craftbukkit = { module = "org.bukkit:craftbukkit", version.ref = "craftbukkit" }
+#craftbukkit = { module = "org.bukkit:craftbukkit", version.ref = "craftbukkit" }
+paper-api = { module = "io.papermc.paper:paper-api", version.ref = "spigot" }
 
 jdt-annotations = { module = "org.eclipse.jdt:org.eclipse.jdt.annotation", version.ref = "jdtannotations" }
 nonpe-java21 = { module = "com.vegardit.no-npe:no-npe-eea-java-21", version.ref = "nonpe" }

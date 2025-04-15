@@ -22,15 +22,24 @@ public class EventDebugger {
 
 	public void onEnable() {
 		if (Settings.debug) {
-			// Register debug listener if enabled:
-			// Run delayed to also catch events / event listeners of other plugins.
-			Bukkit.getScheduler().runTaskLater(plugin, () -> {
+			// 如果启用，则注册调试侦听器：
+			// Run delayed 还可以捕获其他插件的事件/事件侦听器。
+			Bukkit.getGlobalRegionScheduler().runDelayed(plugin, task -> {
 				boolean logAllEvent = Debug.isDebugging(DebugOptions.logAllEvents);
 				boolean printListeners = Debug.isDebugging(DebugOptions.printListeners);
 				if (logAllEvent || printListeners) {
 					DebugListener.register(logAllEvent, printListeners);
 				}
 			}, 10L);
+
+			// 弃用
+			//Bukkit.getScheduler().runTaskLater(plugin, () -> {
+			//	boolean logAllEvent = Debug.isDebugging(DebugOptions.logAllEvents);
+			//	boolean printListeners = Debug.isDebugging(DebugOptions.printListeners);
+			//	if (logAllEvent || printListeners) {
+			//		DebugListener.register(logAllEvent, printListeners);
+			//	}
+			//}, 10L);
 		}
 	}
 

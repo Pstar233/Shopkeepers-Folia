@@ -207,20 +207,48 @@ public abstract class AbstractEquipmentEditorHandler extends UIHandler {
 		Inventory inventory = view.getTopInventory();
 
 		if (rightClick) {
-			// Clear the equipment slot:
-			Bukkit.getScheduler().runTask(ShopkeepersPlugin.getInstance(), () -> {
+			// 清空装备槽位：
+			Bukkit.getGlobalRegionScheduler().run(ShopkeepersPlugin.getInstance(), task -> {
 				if (view.getPlayer().getOpenInventory() != view) return;
 
 				inventory.setItem(rawSlot, this.toEditorEquipmentItem(equipmentSlot, null));
 				onEquipmentChanged(uiSession, equipmentSlot, null);
 			});
+
+			//弃用
+			//Bukkit.getScheduler().runTask(ShopkeepersPlugin.getInstance(), () -> {
+			//	if (view.getPlayer().getOpenInventory() != view) return;
+            //
+			//	inventory.setItem(rawSlot, this.toEditorEquipmentItem(equipmentSlot, null));
+			//	onEquipmentChanged(uiSession, equipmentSlot, null);
+			//});
 			return;
 		}
 
 		ItemStack cursorClone = getCursorCopy.get();
 		if (leftClick && !ItemUtils.isEmpty(cursorClone)) {
 			assert cursorClone != null;
-			// Place the item from the cursor:
+			// 将光标中的项：
+			Bukkit.getGlobalRegionScheduler().run(ShopkeepersPlugin.getInstance(), task -> {
+				if (view.getPlayer().getOpenInventory() != view) return;
+
+				cursorClone.setAmount(1);
+
+				// Replace placeholder item, if this is one:
+				ItemStack substitutedItem = PlaceholderItems.replaceNonNull(cursorClone);
+
+				// Inform about the new equipment item:
+				// No item copy required: The item is already a copy, and for the item in the editor
+				// we create a separate copy subsequently.
+				onEquipmentChanged(uiSession, equipmentSlot, UnmodifiableItemStack.of(substitutedItem));
+
+				// Update the item in the editor:
+				// This copies the item internally (but irrelevant, because we already create a copy
+				// for the editor item anyway):
+				inventory.setItem(rawSlot, this.toEditorEquipmentItem(equipmentSlot, substitutedItem));
+			});
+
+			/* 弃用
 			Bukkit.getScheduler().runTask(ShopkeepersPlugin.getInstance(), () -> {
 				if (view.getPlayer().getOpenInventory() != view) return;
 
@@ -239,6 +267,7 @@ public abstract class AbstractEquipmentEditorHandler extends UIHandler {
 				// for the editor item anyway):
 				inventory.setItem(rawSlot, this.toEditorEquipmentItem(equipmentSlot, substitutedItem));
 			});
+			*/
 		}
 	}
 

@@ -636,23 +636,31 @@ public final class InventoryUtils {
 
 	public static void updateInventoryLater(Player player) {
 		Validate.notNull(player, "player is null");
-		Bukkit.getScheduler().runTask(ShopkeepersPlugin.getInstance(), player::updateInventory);
+		Bukkit.getGlobalRegionScheduler().run(ShopkeepersPlugin.getInstance(), task -> player.updateInventory());
+		//Bukkit.getScheduler().runTask(ShopkeepersPlugin.getInstance(), player::updateInventory);
 	}
 
 	// Only closes the player's open inventory view if it is still the specified view after the
 	// delay:
 	public static void closeInventoryDelayed(InventoryView inventoryView) {
 		Validate.notNull(inventoryView, "inventoryView is null");
-		Bukkit.getScheduler().runTask(ShopkeepersPlugin.getInstance(), () -> {
+		Bukkit.getGlobalRegionScheduler().run(ShopkeepersPlugin.getInstance(), task -> {
 			InventoryView openInventoryView = inventoryView.getPlayer().getOpenInventory();
 			if (inventoryView == openInventoryView) {
 				inventoryView.close(); // Same as player.closeInventory()
 			}
 		});
+		//Bukkit.getScheduler().runTask(ShopkeepersPlugin.getInstance(), () -> {
+		//	InventoryView openInventoryView = inventoryView.getPlayer().getOpenInventory();
+		//	if (inventoryView == openInventoryView) {
+		//		inventoryView.close(); // Same as player.closeInventory()
+		//	}
+		//});
 	}
 
 	public static void closeInventoryDelayed(Player player) {
-		Bukkit.getScheduler().runTask(ShopkeepersPlugin.getInstance(), player::closeInventory);
+		Bukkit.getGlobalRegionScheduler().run(ShopkeepersPlugin.getInstance(), task -> player.closeInventory());
+		//Bukkit.getScheduler().runTask(ShopkeepersPlugin.getInstance(), player::closeInventory);
 	}
 
 	// This can for example be used during the handling of inventory interaction events.
@@ -662,9 +670,12 @@ public final class InventoryUtils {
 			@ReadOnly @Nullable ItemStack itemStack
 	) {
 		Validate.notNull(inventory, "inventory is null");
-		Bukkit.getScheduler().runTask(ShopkeepersPlugin.getInstance(), () -> {
-			inventory.setItem(slot, itemStack); // This copies the item internally
+		Bukkit.getGlobalRegionScheduler().run(ShopkeepersPlugin.getInstance(), task -> {
+			inventory.setItem(slot, itemStack); // 这会在内部复制项目
 		});
+		//Bukkit.getScheduler().runTask(ShopkeepersPlugin.getInstance(), () -> {
+		//	inventory.setItem(slot, itemStack); // This copies the item internally
+		//});
 	}
 
 	private InventoryUtils() {
