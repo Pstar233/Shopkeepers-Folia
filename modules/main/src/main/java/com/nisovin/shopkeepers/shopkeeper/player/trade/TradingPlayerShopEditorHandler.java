@@ -4,13 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import com.nisovin.shopkeepers.commands.lib.arguments.PlayerUUIDArgument;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.plugin.Plugin;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.nisovin.shopkeepers.api.ShopkeepersPlugin;
@@ -191,8 +192,8 @@ public class TradingPlayerShopEditorHandler extends PlayerShopEditorHandler {
 		cursorClone.setAmount(1);
 		// Replace placeholder item, if this is one:
 		ItemStack cursorFinal = PlaceholderItems.replace(cursorClone);
-
-		Bukkit.getGlobalRegionScheduler().run(ShopkeepersPlugin.getInstance(), task -> {
+		Location location = view.getPlayer().getBedLocation();
+		Bukkit.getRegionScheduler().run(ShopkeepersPlugin.getInstance(), location, task -> {
 			if (view.getPlayer().getOpenInventory() != view) return;
 
 			Inventory inventory = view.getTopInventory();
@@ -201,17 +202,6 @@ public class TradingPlayerShopEditorHandler extends PlayerShopEditorHandler {
 			// Update the trade column (replaces empty slot placeholder items if necessary):
 			this.updateTradeColumn(inventory, this.getTradeColumn(rawSlot));
 		});
-
-		// 弃用 *
-		//Bukkit.getScheduler().runTask(ShopkeepersPlugin.getInstance(), () -> {
-		//	if (view.getPlayer().getOpenInventory() != view) return;
-        //
-		//	Inventory inventory = view.getTopInventory();
-		//	inventory.setItem(rawSlot, cursorFinal); // This copies the item internally
-        //
-		//	// Update the trade column (replaces empty slot placeholder items if necessary):
-		//	this.updateTradeColumn(inventory, this.getTradeColumn(rawSlot));
-		//});
 	}
 
 	@Override

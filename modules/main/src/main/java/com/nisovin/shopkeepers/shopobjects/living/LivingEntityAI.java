@@ -7,7 +7,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import org.bukkit.Bukkit;
@@ -23,7 +25,6 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
-import org.bukkit.scheduler.BukkitTask;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.nisovin.shopkeepers.SKShopkeepersPlugin;
@@ -41,17 +42,17 @@ import com.nisovin.shopkeepers.util.timer.Timer;
 import com.nisovin.shopkeepers.util.timer.Timings;
 
 /**
- * Handles the gravity and AI behavior, e.g. looking at nearby players, of
+ * 处理重力和 AI 行为，例如看着附近的玩家
  * {@link SKLivingShopObject}s.
  * <p>
- * Shop objects must be {@link #addShopObject(SKLivingShopObject) added} when their entity has been
- * spawned, and {@link #removeShopObject(SKLivingShopObject) removed} again when their entity is
- * despawned.
+ * 当商店对象的实体已添加时，必须添加 {@link #addShopObject（SKLivingShopObject）
+ * 生成，并且 {@link #removeShopObject（SKLivingShopObject） removed} 当它们的实体被
+ * 消失。
  * <p>
- * It is assumed that the shop objects / entities don't change their initial location (chunk). If
- * they do change their location, the AI system must be informed via
- * {@link #updateLocation(SKLivingShopObject)} in order for their gravity and AI activation to still
- * function correctly.
+ * 假设商店对象/实体不会更改其初始位置（块）。如果
+ * 他们确实更改了位置，必须通过以下方式通知 AI 系统
+ * {@link #updateLocation（SKLivingShopObject）}，以便他们的重力和 AI 激活保持静止
+ * 功能正常。
  */
 public class LivingEntityAI implements Listener {
 
@@ -183,7 +184,6 @@ public class LivingEntityAI implements Listener {
 	private final Map<SKLivingShopObject<?>, EntityData> shopObjects = new HashMap<>();
 
 	private @Nullable ScheduledTask aiTask = null;
-	private boolean currentlyRunning = false;
 
 	// Statistics:
 	private int activeAIChunksCount = 0;
@@ -219,7 +219,6 @@ public class LivingEntityAI implements Listener {
 	}
 
 	public void onDisable() {
-		assert !currentlyRunning;
 		HandlerList.unregisterAll(this); // Unregister listener
 		this.stopTask();
 		chunks.clear();
@@ -231,57 +230,55 @@ public class LivingEntityAI implements Listener {
 
 	public void addShopObject(SKLivingShopObject<?> shopObject) {
 		Validate.notNull(shopObject, "shopObject is null");
-		Validate.State.isTrue(!currentlyRunning,
-				"Cannot add shop objects while the AI task is running!");
 		Validate.isTrue(!shopObjects.containsKey(shopObject), "shopObject is already added");
 
-		// Note: We expect that the shop object is unregistered again when its entity is despawned.
-		LivingEntity entity = shopObject.getEntity();
-		Validate.notNull(entity, "shopObject is not spawned currently!");
-		assert entity != null;
-		Validate.isTrue(entity.isValid(), "entity is invalid");
+		synchronized (shopObject) {
+			// Note: We expect that the shop object is unregistered again when its entity is despawned.
+			LivingEntity entity = shopObject.getEntity();
+			Validate.notNull(entity, "shopObject is not spawned currently!");
+			assert entity != null;
+			Validate.isTrue(entity.isValid(), "entity is invalid");
 
-		// Determine entity chunk (asserts that the entity won't move!):
-		// We assert that the chunk is loaded (checked above by isValid call).
-		Location entityLocation = Unsafe.assertNonNull(entity.getLocation(sharedLocation));
-		sharedChunkCoords.set(entityLocation);
-		sharedLocation.setWorld(null); // Reset
+			// Determine entity chunk (asserts that the entity won't move!):
+			// We assert that the chunk is loaded (checked above by isValid call).
+			Location entityLocation = Unsafe.assertNonNull(entity.getLocation(sharedLocation));
+			sharedChunkCoords.set(entityLocation);
+			sharedLocation.setWorld(null); // Reset
 
-		// Add chunk entry:
-		ChunkData chunkData = chunks.get(sharedChunkCoords);
-		if (chunkData == null) {
-			ChunkCoords chunkCoords = new ChunkCoords(sharedChunkCoords); // Copy
-			chunkData = new ChunkData(chunkCoords, customGravityEnabled);
-			chunks.put(chunkCoords, chunkData);
+			// Add chunk entry:
+			ChunkData chunkData = chunks.get(sharedChunkCoords);
+			if (chunkData == null) {
+				ChunkCoords chunkCoords = new ChunkCoords(sharedChunkCoords); // Copy
+				chunkData = new ChunkData(chunkCoords, customGravityEnabled);
+				chunks.put(chunkCoords, chunkData);
 
-			// Update chunk statistics:
+				// Update chunk statistics:
+				if (chunkData.activeAI) {
+					activeAIChunksCount++;
+				}
+				if (chunkData.activeGravity) {
+					activeGravityChunksCount++;
+				}
+			}
+
+			// Add entity entry:
+			EntityData entityData = new EntityData(shopObject, chunkData);
+			shopObjects.put(shopObject, entityData);
+			chunkData.entities.add(entityData);
+
+			// Update entity statistics:
 			if (chunkData.activeAI) {
-				activeAIChunksCount++;
+				activeAIEntityCount++;
 			}
 			if (chunkData.activeGravity) {
-				activeGravityChunksCount++;
+				activeGravityEntityCount++;
 			}
+			// Start the AI task, if it isn't already running:
+			this.startTask();
 		}
-
-		// Add entity entry:
-		EntityData entityData = new EntityData(shopObject, chunkData);
-		shopObjects.put(shopObject, entityData);
-		chunkData.entities.add(entityData);
-
-		// Update entity statistics:
-		if (chunkData.activeAI) {
-			activeAIEntityCount++;
-		}
-		if (chunkData.activeGravity) {
-			activeGravityEntityCount++;
-		}
-
-		// Start the AI task, if it isn't already running:
-		this.startTask();
 	}
 
 	public void removeShopObject(SKLivingShopObject<?> shopObject) {
-		// 添加了 互斥锁  synchronized
 		synchronized (shopObject) {
 			// Remove shop object:
 			@Nullable EntityData entityData = shopObjects.remove(shopObject);
@@ -376,8 +373,7 @@ public class LivingEntityAI implements Listener {
 		int tickPeriod = Settings.mobBehaviorTickPeriod;
 		aiTask = Bukkit.getAsyncScheduler().runAtFixedRate(plugin, task -> {
 			new TickTask();
-		}, tickPeriod * 50 , tickPeriod * 50 , TimeUnit.MILLISECONDS);
-
+		}, tickPeriod * 50, tickPeriod * 50, TimeUnit.MILLISECONDS);
 	}
 
 	private void stopTask() {
@@ -403,8 +399,6 @@ public class LivingEntityAI implements Listener {
 				return;
 			}
 
-			currentlyRunning = true;
-
 			// Start timings:
 			totalTimings.start();
 			gravityTimings.startPaused();
@@ -423,8 +417,6 @@ public class LivingEntityAI implements Listener {
 			totalTimings.stop();
 			gravityTimings.stop();
 			aiTimings.stop();
-
-			currentlyRunning = false;
 		}
 	}
 
@@ -441,11 +433,20 @@ public class LivingEntityAI implements Listener {
 		activeAIChunksCount = 0;
 		activeGravityChunksCount = 0;
 
-		// Activate chunks around online players:
+		List<CompletableFuture<Void>> futures = new ArrayList<>();
+
+		// 激活在线玩家周围的区块：
 		for (Player player : Bukkit.getOnlinePlayers()) {
 			assert player != null;
-			this.activateNearbyChunks(player);
+			CompletableFuture<Void> voidCompletableFuture = new CompletableFuture<>();
+			futures.add(voidCompletableFuture);
+			Location location = player.getLocation();
+			Bukkit.getRegionScheduler().run(plugin, location, task -> {
+				this.activateNearbyChunks(player);
+				voidCompletableFuture.complete(null);
+			});
 		}
+		CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
 
 		activationTimings.stop();
 	}
@@ -484,11 +485,11 @@ public class LivingEntityAI implements Listener {
 	}
 
 	private void activateNearbyChunksDelayed(Player player) {
-		if (!player.isOnline()) return; // Player is no longer online
-		Bukkit.getGlobalRegionScheduler().run(plugin, task -> {
+		if (!player.isOnline()) return; // Player 不再在线,结束此方法
+		Location location = player.getLocation();
+		Bukkit.getRegionScheduler().run(plugin, location, task -> {
 			new ActivateNearbyChunksDelayedTask(player);
 		});
-		//Bukkit.getScheduler().runTask(plugin, new ActivateNearbyChunksDelayedTask(player));
 	}
 
 	private class ActivateNearbyChunksDelayedTask implements Runnable {
@@ -564,7 +565,18 @@ public class LivingEntityAI implements Listener {
 			return;
 		}
 
-		chunks.values().forEach(this::processEntities);
+		List<CompletableFuture<Void>> futures = new ArrayList<>();
+
+		chunks.values().forEach( chunkData -> {
+			CompletableFuture<Void> voidCompletableFuture = new CompletableFuture<>();
+			futures.add(voidCompletableFuture);
+			Location location = new Location(chunkData.chunkCoords.getWorld(), chunkData.chunkCoords.getChunkX() << 4, 0, chunkData.chunkCoords.getChunkZ() << 4);
+		    Bukkit.getRegionScheduler().run(plugin, location, task -> {
+				processEntities(chunkData);
+				voidCompletableFuture.complete(null);
+			});
+		});
+		CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
 	}
 
 	private void processEntities(ChunkData chunkData) {
@@ -581,41 +593,43 @@ public class LivingEntityAI implements Listener {
 		assert entityData != null;
 		LivingEntity entity = entityData.shopObject.getEntity();
 
-		// Unexpected: The shop object is supposed to unregister itself from the AI system when it
-		// despawns its entity.
-		if (entity == null) return;
+		synchronized (entityData.shopObject) {
+			// Unexpected: The shop object is supposed to unregister itself from the AI system when it
+			// despawns its entity.
+			if (entity == null) return;
 
-		// Note: Checking entity.isValid() is relatively heavy (compared to other operations) due to
-		// a chunk lookup. The entity's entry is already immediately getting removed as reaction to
-		// its chunk being unloaded. So there should be no need to check for that here.
-		// TODO Actually, if the entity moved into a different chunk and we did not update its
-		// location in the chunk index yet, it may already have been unloaded but still getting
-		// ticked here. However, this is not the case currently, since all shopkeeper entities are
-		// stationary (unless some other plugin teleports them).
-		if (entity.isDead()) {
-			// Some plugin might have removed the entity. The shop object will remove the entity's
-			// entry once it recognizes that the entity has been removed. Until then, we simply skip
-			// it here.
-			return;
+			// Note: Checking entity.isValid() is relatively heavy (compared to other operations) due to
+			// a chunk lookup. The entity's entry is already immediately getting removed as reaction to
+			// its chunk being unloaded. So there should be no need to check for that here.
+			// TODO Actually, if the entity moved into a different chunk and we did not update its
+			// location in the chunk index yet, it may already have been unloaded but still getting
+			// ticked here. However, this is not the case currently, since all shopkeeper entities are
+			// stationary (unless some other plugin teleports them).
+			if (entity.isDead()) {
+				// Some plugin might have removed the entity. The shop object will remove the entity's
+				// entry once it recognizes that the entity has been removed. Until then, we simply skip
+				// it here.
+				return;
+			}
+
+			ChunkData chunkData = entityData.chunkData;
+
+			// Process gravity:
+			gravityTimings.resume();
+			if (chunkData.activeGravity && entityData.isAffectedByGravity()) {
+				activeGravityEntityCount++;
+				this.processGravity(entityData);
+			}
+			gravityTimings.pause();
+
+			// Process AI:
+			aiTimings.resume();
+			if (chunkData.activeAI) {
+				activeAIEntityCount++;
+				this.processAI(entityData);
+			}
+			aiTimings.pause();
 		}
-
-		ChunkData chunkData = entityData.chunkData;
-
-		// Process gravity:
-		gravityTimings.resume();
-		if (chunkData.activeGravity && entityData.isAffectedByGravity()) {
-			activeGravityEntityCount++;
-			this.processGravity(entityData);
-		}
-		gravityTimings.pause();
-
-		// Process AI:
-		aiTimings.resume();
-		if (chunkData.activeAI) {
-			activeAIEntityCount++;
-			this.processAI(entityData);
-		}
-		aiTimings.pause();
 	}
 
 	// GRAVITY

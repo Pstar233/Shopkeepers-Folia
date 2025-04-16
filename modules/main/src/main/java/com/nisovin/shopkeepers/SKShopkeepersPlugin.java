@@ -71,6 +71,7 @@ import com.nisovin.shopkeepers.util.logging.Log;
 import com.nisovin.shopkeepers.villagers.RegularVillagers;
 import com.nisovin.shopkeepers.world.ForcingCreatureSpawner;
 import com.nisovin.shopkeepers.world.ForcingEntityTeleporter;
+import com.nisovin.shopkeepers.world.PlayerMap;
 
 public class SKShopkeepersPlugin extends JavaPlugin implements InternalShopkeepersPlugin {
 
@@ -118,6 +119,7 @@ public class SKShopkeepersPlugin extends JavaPlugin implements InternalShopkeepe
 
 	private final ForcingCreatureSpawner forcingCreatureSpawner = new ForcingCreatureSpawner(Unsafe.initialized(this));
 	private final ForcingEntityTeleporter forcingEntityTeleporter = new ForcingEntityTeleporter(Unsafe.initialized(this));
+	private final PlayerMap playerMap = new PlayerMap(Unsafe.initialized(this));
 	private final ItemConversions itemConversions = new ItemConversions(Unsafe.initialized(this));
 	private final Commands commands = new Commands(Unsafe.initialized(this));
 	private final ChatInput chatInput = new ChatInput(Unsafe.initialized(this));
@@ -356,6 +358,7 @@ public class SKShopkeepersPlugin extends JavaPlugin implements InternalShopkeepe
 
 		forcingCreatureSpawner.onEnable();
 		forcingEntityTeleporter.onEnable();
+		playerMap.onEnable();
 
 		// Inform UI registry (registers UI event handlers):
 		uiRegistry.onEnable();
@@ -463,11 +466,11 @@ public class SKShopkeepersPlugin extends JavaPlugin implements InternalShopkeepe
 		// Inform UI registry about disable:
 		uiRegistry.onDisable();
 
-		//停用（消失）所有店主（在保存店主数据之前和之前
-		//卸载所有店主）：
+		// Deactivate (despawn) all shopkeepers (prior to saving shopkeepers data and before
+		// unloading all shopkeepers):
 		shopkeeperRegistry.getChunkActivator().deactivateShopkeepersInAllWorlds();
 
-		// 禁用 Living 实体商店：
+		// Disable living entity shops:
 		livingShops.onDisable();
 
 		// Disable block shops:
@@ -499,7 +502,7 @@ public class SKShopkeepersPlugin extends JavaPlugin implements InternalShopkeepe
 		// Item conversions:
 		itemConversions.onDisable();
 
-		// 普通村民：
+		// Regular villagers:
 		regularVillagers.onDisable();
 
 		shopkeeperNaming.onDisable();
@@ -507,7 +510,7 @@ public class SKShopkeepersPlugin extends JavaPlugin implements InternalShopkeepe
 
 		shopkeeperCreation.onDisable();
 
-		// 玩家商店：
+		// Player shops:
 		playerShops.onDisable();
 
 		commandTrading.onDisable();
@@ -523,6 +526,7 @@ public class SKShopkeepersPlugin extends JavaPlugin implements InternalShopkeepe
 		shopObjectTypesRegistry.clearAll();
 		uiRegistry.clearAll();
 
+		playerMap.onDisable();
 		forcingEntityTeleporter.onDisable();
 		forcingCreatureSpawner.onDisable();
 
@@ -533,10 +537,8 @@ public class SKShopkeepersPlugin extends JavaPlugin implements InternalShopkeepe
 		eventDebugger.onDisable();
 
 		HandlerList.unregisterAll(this);
-		//取消任务
 		Bukkit.getAsyncScheduler().cancelTasks(this);
 		Bukkit.getGlobalRegionScheduler().cancelTasks(this);
-		//Bukkit.getScheduler().cancelTasks(this);
 
 		InternalShopkeepersAPI.disable();
 		plugin = null;
@@ -578,6 +580,10 @@ public class SKShopkeepersPlugin extends JavaPlugin implements InternalShopkeepe
 
 	public ForcingEntityTeleporter getForcingEntityTeleporter() {
 		return forcingEntityTeleporter;
+	}
+
+	public PlayerMap getPlayerMap() {
+		return playerMap;
 	}
 
 	// SHOPKEEPER REGISTRY

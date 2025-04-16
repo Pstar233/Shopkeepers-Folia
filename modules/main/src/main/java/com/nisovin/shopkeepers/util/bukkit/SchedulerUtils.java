@@ -4,7 +4,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
 import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
-import net.citizensnpcs.api.ai.tree.IfElse;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.IllegalPluginAccessException;
 import org.bukkit.plugin.Plugin;
@@ -15,14 +14,14 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import com.nisovin.shopkeepers.util.java.Validate;
 
 /**
- * Scheduler related utilities.
+ * 与调度程序相关的实用程序。
  */
 public final class SchedulerUtils {
 
 	public static int getActiveAsyncTasks(Plugin plugin) {
-		// 始终返回 0
-		if (true) return 0;
-
+		if (true) {
+			return 0;
+		}
 		Validate.notNull(plugin, "plugin is null");
 		int workers = 0;
 		for (BukkitWorker worker : Bukkit.getScheduler().getActiveWorkers()) {
@@ -53,13 +52,11 @@ public final class SchedulerUtils {
 	 * If the current thread is already the primary thread, the task will be run immediately.
 	 * Otherwise, it attempts to schedule the task to run on the server's primary thread. However,
 	 * if the plugin is disabled, the task won't be scheduled.
-	 * 
-	 * @param plugin
-	 *            the plugin to use for scheduling, not <code>null</code>
-	 * @param task
-	 *            the task, not <code>null</code>
+	 *
+	 * @param plugin  the plugin to use for scheduling, not <code>null</code>
+	 * @param task    the task, not <code>null</code>
 	 * @return <code>true</code> if the task was run or successfully scheduled to be run,
-	 *         <code>false</code> otherwise
+	 * <code>false</code> otherwise
 	 */
 	public static boolean runOnMainThreadOrOmit(Plugin plugin, Runnable task) {
 		validatePluginTask(plugin, task);
@@ -72,33 +69,33 @@ public final class SchedulerUtils {
 	}
 
 	public static @Nullable ScheduledTask runTaskOrOmit(Plugin plugin, Runnable task) {
-		return runTaskLaterOrOmit(plugin, task, 0L);
+		return runTaskLaterOrOmit(plugin, task, 0L );
 	}
 
 	public static @Nullable ScheduledTask runTaskLaterOrOmit(
 			Plugin plugin,
 			Runnable task,
 			long delay
-	) {
+			) {
 		validatePluginTask(plugin, task);
-		// 任务只能在启用时注册：
+		// Tasks can only be registered while enabled:
 		if (plugin.isEnabled()) {
 			try {
 				if (delay <= 0 ) delay = 1;
 				return Bukkit.getGlobalRegionScheduler().runDelayed(plugin, task1 -> task.run(),delay);
 				//return Bukkit.getScheduler().runTaskLater(plugin, task, delay); 弃用
 			} catch (IllegalPluginAccessException e) {
-				// 无法注册任务：插件刚才被禁用。
+				// Couldn't register task: The plugin got disabled just now.
 			}
 		}
 		return null;
 	}
 
-	public static @Nullable BukkitTask runAsyncTaskOrOmit(Plugin plugin, Runnable task) {
+	public static @Nullable ScheduledTask runAsyncTaskOrOmit(Plugin plugin, Runnable task) {
 		return runAsyncTaskLaterOrOmit(plugin, task, 0L);
 	}
 
-	public static @Nullable BukkitTask runAsyncTaskLaterOrOmit(
+	public static @Nullable ScheduledTask runAsyncTaskLaterOrOmit(
 			Plugin plugin,
 			Runnable task,
 			long delay
@@ -107,7 +104,7 @@ public final class SchedulerUtils {
 		// Tasks can only be registered while enabled:
 		if (plugin.isEnabled()) {
 			try {
-				return Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, task, delay);
+				return Bukkit.getAsyncScheduler().runDelayed(plugin, task1 -> task.run() , delay * 50, TimeUnit.MILLISECONDS);
 			} catch (IllegalPluginAccessException e) {
 				// Couldn't register task: The plugin got disabled just now.
 			}

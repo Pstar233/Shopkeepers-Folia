@@ -35,7 +35,7 @@ public class ForcingCreatureSpawner implements Listener {
 	public void onDisable() {
 		HandlerList.unregisterAll(this);
 
-		// Reset any pending forced spawn:
+		// 重置任何待处理的强制生成：
 		this.resetForcedCreatureSpawn();
 	}
 

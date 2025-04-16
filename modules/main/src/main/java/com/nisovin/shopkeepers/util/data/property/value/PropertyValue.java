@@ -47,14 +47,7 @@ public class PropertyValue<T> {
 		 * Whether to mark the {@link PropertyValue#getHolder() holder} as
 		 * {@link AbstractPropertyValuesHolder#markDirty() dirty} when the value has changed.
 		 */
-		MARK_DIRTY,
-		/**
-		 * Same as {@link #MARK_DIRTY}, but also marks the property value holder as dirty if the new
-		 * value equals the current value. This can for example be used to forcefully save the
-		 * default value to storage because the property value was found missing during loading,
-		 * even if the default value equals the current value.
-		 */
-		FORCE_MARK_DIRTY
+		MARK_DIRTY
 	}
 
 	/**
@@ -63,10 +56,6 @@ public class PropertyValue<T> {
 	 */
 	public static final Set<? extends UpdateFlag> DEFAULT_UPDATE_FLAGS = Collections.singleton(
 			DefaultUpdateFlag.MARK_DIRTY
-	);
-
-	private static final Set<? extends UpdateFlag> FORCE_DIRTY_FLAGS = Collections.singleton(
-			DefaultUpdateFlag.FORCE_MARK_DIRTY
 	);
 
 	private final Property<T> property;
@@ -228,32 +217,15 @@ public class PropertyValue<T> {
 		// Update the value:
 		// Not using #getValue() here, to bypass the requireInitialValue check.
 		T oldValue = Unsafe.cast(this.value);
-		if (Objects.equals(oldValue, value)) {
-			// The value has not changed.
-
-			// Mark the holder as dirty if forced.
-			// This is for example the case when the property value is found missing during loading
-			// and the default value (potentially matching the current value) is applied and
-			// intended to be saved to storage in order to no longer be missing in subsequent
-			// loadings.
-			if (updateFlags.contains(DefaultUpdateFlag.FORCE_MARK_DIRTY)) {
-				assert holder != null;
-				holder.markDirty();
-			}
-
-			return;
-		}
-
+		if (Objects.equals(oldValue, value)) return; // Value has not changed
 		this.value = value;
 		this.requireInitialValue = false;
 
 		// Post-value-change actions:
-		if (updateFlags.contains(DefaultUpdateFlag.MARK_DIRTY)
-				|| updateFlags.contains(DefaultUpdateFlag.FORCE_MARK_DIRTY)) {
+		if (updateFlags.contains(DefaultUpdateFlag.MARK_DIRTY)) {
 			assert holder != null;
 			holder.markDirty();
 		}
-
 		this.onValueChanged(oldValue, value, updateFlags);
 		if (valueChangeListener != null) {
 			valueChangeListener.onValueChanged(this, oldValue, value, updateFlags);
@@ -353,10 +325,7 @@ public class PropertyValue<T> {
 			}
 
 			value = property.getDefaultValue();
-			// Mark the holder as dirty even if the applied default value equals the current value,
-			// so that the default value is saved to storage and this warning is not logged over and
-			// over again during subsequent loadings:
-			updateFlags = FORCE_DIRTY_FLAGS;
+			updateFlags = DEFAULT_UPDATE_FLAGS; // Marks the holder as dirty
 			assert holder != null;
 			Log.warning(holder.getLogPrefix() + "Missing data for property '" + property.getName()
 					+ "'. Using the default value now: '" + property.toString(value) + "'");

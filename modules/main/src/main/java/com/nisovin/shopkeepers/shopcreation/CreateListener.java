@@ -50,7 +50,7 @@ import com.nisovin.shopkeepers.util.java.MutableLong;
 import com.nisovin.shopkeepers.util.logging.Log;
 
 /**
- * Handles the usage of the shop creation item.
+ * 处理商店创建项目的使用。
  */
 class CreateListener implements Listener {
 
@@ -319,16 +319,12 @@ class CreateListener implements Listener {
 					containerSelection.selectContainer(player, null);
 
 					// 在此事件后手动从玩家的手上移除创建物品
-					// processed:
-					Bukkit.getGlobalRegionScheduler().run(plugin, task -> {
+					// 处理：
+					Location location = player.getLocation();
+					Bukkit.getRegionScheduler().run(plugin, location, task -> {
 						ItemStack newItemInMainHand = ItemUtils.decreaseItemAmount(itemInHand, 1);
 						player.getInventory().setItemInMainHand(newItemInMainHand);
 					});
-
-					//Bukkit.getScheduler().runTask(plugin, () -> {
-					//	ItemStack newItemInMainHand = ItemUtils.decreaseItemAmount(itemInHand, 1);
-					//	player.getInventory().setItemInMainHand(newItemInMainHand);
-					//});
 				}
 			}
 		}
@@ -361,7 +357,7 @@ class CreateListener implements Listener {
 		Player player = event.getPlayer();
 		// We check the permission first since this check is fast:
 		if (PermissionUtils.hasPermission(player, ShopkeepersPlugin.BYPASS_PERMISSION)) return;
-		ItemStack itemInHand = player.getInventory().getItem(event.getHand());
+		ItemStack itemInHand = InventoryUtils.getItem(player.getInventory(), event.getHand());
 		if (!ShopCreationItem.isShopCreationItem(itemInHand)) return;
 
 		// Prevent the entity interaction:

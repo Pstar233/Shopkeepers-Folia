@@ -9,6 +9,7 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.event.HandlerList;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -98,18 +99,18 @@ public class ShopkeeperSpawner {
 	public void onDisable() {
 		HandlerList.unregisterAll(listener);
 
-		// 关闭生成队列：
+		// Shutdown the spawn queue:
 		spawnQueue.shutdown();
 
-		// 我们不希望在世界保存期间禁用或重新加载该插件。否则，如果
-		//插件重新加载后，店主可能会立即重生，而世界
-		//保存仍在进行中。
-		//但是，在正常的服务器关闭期间，世界可能会被保存，并且插件
-		//disabled （禁用）。
-		//取消所有待处理的世界保存重生任务：
+		// We don't expect the plugin to be disabled or reloaded during world saves. Otherwise, if
+		// the plugin is reloaded, the shopkeepers might get immediately respawned while the world
+		// save is still in progress.
+		// However, during normal server shutdowns, the worlds might get saved and the plugin
+		// disabled before our respawn tasks are run.
+		// Cancel all pending world save respawn tasks:
 		worlds.values().forEach(WorldData::cleanUp);
 
-		// 删除所有缓存的世界数据：
+		// Remove all cached world data:
 		worlds.clear();
 	}
 
@@ -691,12 +692,14 @@ public class ShopkeeperSpawner {
 		// state changes that happen in the meantime:
 		chunks.forEach(chunkCoords -> {
 			if (!shopkeeperRegistry.isChunkActive(chunkCoords)) return;
+			Location location = new Location(chunkCoords.getWorld(), chunkCoords.getChunkX() << 4, 0, chunkCoords.getChunkZ() << 4);
+			Bukkit.getRegionScheduler().run(plugin, location, task -> {
+				Collection<? extends AbstractShopkeeper> chunkShopkeepers = shopkeeperRegistry.getShopkeepersInChunk(chunkCoords);
+				chunkShopkeepers.forEach(shopkeeper -> {
+					if (!shopkeeperFilter.test(shopkeeper)) return;
 
-			Collection<? extends AbstractShopkeeper> chunkShopkeepers = shopkeeperRegistry.getShopkeepersInChunk(chunkCoords);
-			chunkShopkeepers.forEach(shopkeeper -> {
-				if (!shopkeeperFilter.test(shopkeeper)) return;
-
-				this.updateSpawnState(shopkeeper, State.SPAWNING);
+					this.updateSpawnState(shopkeeper, State.SPAWNING);
+				});
 			});
 		});
 
@@ -713,12 +716,15 @@ public class ShopkeeperSpawner {
 			// removed, the previously set spawn states of the shopkeepers have already been reset
 			// again. Any shopkeepers that have been newly added to the chunk in the meantime are
 			// ignored in the following, since their spawn states will not be 'spawning'.
-			this.spawnChunkShopkeepers(
-					chunkCoords,
-					spawnReason,
-					newShopkeeperFilter,
-					spawnImmediately
-			);
+			Location location = new Location(chunkCoords.getWorld(), chunkCoords.getChunkX() << 4, 0, chunkCoords.getChunkZ() << 4);
+			Bukkit.getRegionScheduler().run(plugin, location, task -> {
+				this.spawnChunkShopkeepers(
+						chunkCoords,
+						spawnReason,
+						newShopkeeperFilter,
+						spawnImmediately
+				);
+			});
 		});
 	}
 

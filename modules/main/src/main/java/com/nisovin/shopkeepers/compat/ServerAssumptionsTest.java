@@ -36,25 +36,25 @@ import com.nisovin.shopkeepers.util.java.Validate;
 import com.nisovin.shopkeepers.util.logging.Log;
 
 /**
- * Tests some of this plugin's assumptions about the server's API implementation.
+ * 测试此插件对服务器 API 实现的一些假设。
  * <p>
- * Any assumptions that turn out to be incorrect will cause the plugin to shut down to avoid any
- * damage that could be caused by the plugin not behaving as expected.
+ * 任何被证明是错误的假设都会导致插件关闭以避免任何
+ * 插件未按预期行为可能导致的损坏。
  * <p>
- * These tests should ideally be lightweight to not delay the server startup for too long.
+ * 理想情况下，这些测试应该是轻量级的，以免服务器启动延迟太久。
  */
 public class ServerAssumptionsTest {
 
 	private static @Nullable Boolean result = null; // Null if the tests were not yet run
 
-	/**
-	 * Runs the server assumption tests.
+/**
+	 * 运行服务器假设测试。
 	 * <p>
-	 * The tests are only run once, during the initial plugin startup. Any subsequent invocations
-	 * (e.g. during subsequent soft plugin reloads) return the result of the previous test
-	 * execution.
-	 * 
-	 * @return <code>true</code> if the tests passed, <code>false</code> if one of the tests failed
+	 * 测试仅在初始插件启动期间运行一次。任何后续调用
+	 * （例如，在后续的软插件重新加载期间）返回上一个测试的结果
+	 *执行。
+	 *
+	 * 如果测试通过，则@return <code>true</code>，如果其中一个测试失败，则为 <code>false</code>。
 	 */
 	public static boolean run() {
 		if (result != null) {
@@ -215,7 +215,7 @@ public class ServerAssumptionsTest {
 						EquipmentSlotGroup.OFFHAND
 				)
 		);
-		itemMeta.addAttributeModifier(Attribute.GENERIC_MAX_HEALTH,
+		itemMeta.addAttributeModifier(Attribute.GENERIC_ATTACK_SPEED,
 				new AttributeModifier(
 						new UUID(3L, 3L),
 						"max health bonus",

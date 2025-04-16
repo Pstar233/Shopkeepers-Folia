@@ -8,16 +8,10 @@ import java.util.concurrent.ThreadLocalRandom;
 public final class MathUtils {
 
 	/**
-	 * The default maximum difference between two double numbers that are still considered equal in
-	 * a fuzzy comparison.
+	 * The default maximum difference between two floating point numbers that are still considered
+	 * equal in a fuzzy comparison.
 	 */
 	public static final double EPSILON = 0.00001D;
-
-	/**
-	 * The default maximum difference between two float numbers that are still considered equal in a
-	 * fuzzy comparison.
-	 */
-	public static final float FLOAT_EPSILON = (float) EPSILON;
 
 	/**
 	 * Checks if the given values are roughly equal, using {@link #EPSILON} as the maximum
@@ -55,45 +49,6 @@ public final class MathUtils {
 	 */
 	public static boolean fuzzyEquals(double a, double b, double tolerance) {
 		return Double.compare(a, b) == 0 // Accounts for NaN and infinities
-				|| Math.abs(a - b) <= tolerance;
-	}
-
-	/**
-	 * Checks if the given values are roughly equal, using {@link #FLOAT_EPSILON} as the maximum
-	 * tolerance.
-	 * 
-	 * @param a
-	 *            the first value
-	 * @param b
-	 *            the second value
-	 * @return <code>true</code> if the values are considered equal
-	 * @see #fuzzyEquals(float, float, float)
-	 */
-	public static boolean fuzzyEquals(float a, float b) {
-		return fuzzyEquals(a, b, FLOAT_EPSILON);
-	}
-
-	/**
-	 * Checks if the given values are roughly equal within the given {@code tolerance}.
-	 * <p>
-	 * Notes on the comparison of special values:
-	 * <ul>
-	 * <li>All {@link Float#NaN} values are considered equal.
-	 * <li>{@link Float#POSITIVE_INFINITY} and {@link Float#NEGATIVE_INFINITY} are each considered
-	 * equal to themselves.
-	 * <li>Positive and negative zero are considered equal.
-	 * </ul>
-	 * 
-	 * @param a
-	 *            the first value
-	 * @param b
-	 *            the second value
-	 * @param tolerance
-	 *            the maximum difference between both values to still be considered equal
-	 * @return <code>true</code> if the values are considered equal
-	 */
-	public static boolean fuzzyEquals(float a, float b, float tolerance) {
-		return Float.compare(a, b) == 0 // Accounts for NaN and infinities
 				|| Math.abs(a - b) <= tolerance;
 	}
 
@@ -159,8 +114,7 @@ public final class MathUtils {
 	}
 
 	/**
-	 * Clamps the value to the specified range, returning the closest bound if the value is outside
-	 * the range.
+	 * Calculates the closest value in the specified range.
 	 * 
 	 * @param value
 	 *            the value
@@ -168,9 +122,9 @@ public final class MathUtils {
 	 *            the lower bound (inclusive)
 	 * @param max
 	 *            the upper bound (inclusive)
-	 * @return the value clamped to the specified range
+	 * @return the value within the specified range
 	 */
-	public static int clamp(int value, int min, int max) {
+	public static int trim(int value, int min, int max) {
 		if (value <= min) return min;
 		if (value >= max) return max;
 		return value;

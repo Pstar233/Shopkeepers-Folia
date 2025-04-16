@@ -98,7 +98,7 @@ public abstract class SingletonTask {
 
 	/**
 	 * Checks if an execution is currently in progress.
-	 * 
+	 *
 	 * @return <code>true</code> if an execution is in progress
 	 */
 	public final boolean isRunning() {
@@ -108,7 +108,7 @@ public abstract class SingletonTask {
 
 	/**
 	 * Checks whether an execution is in progress that is currently being post-processed.
-	 * 
+	 *
 	 * @return <code>true</code> if there is an execution that is currently being post-processed
 	 */
 	public final boolean isPostProcessing() {
@@ -119,7 +119,7 @@ public abstract class SingletonTask {
 	/**
 	 * Checks whether there is an execution pending, which will start once the current execution
 	 * completes.
-	 * 
+	 *
 	 * @return <code>true</code> if there is an execution pending
 	 */
 	public final boolean isExecutionPending() {
@@ -397,7 +397,7 @@ public abstract class SingletonTask {
 
 	/**
 	 * Creates an {@link InternalAsyncTask}.
-	 * 
+	 *
 	 * @return the task instance, not <code>null</code>
 	 */
 	protected abstract InternalAsyncTask createInternalAsyncTask();
@@ -453,7 +453,7 @@ public abstract class SingletonTask {
 
 	/**
 	 * Creates an {@link InternalSyncCallbackTask}.
-	 * 
+	 *
 	 * @return the task instance, not <code>null</code>
 	 */
 	protected abstract InternalSyncCallbackTask createInternalSyncCallbackTask();
@@ -532,7 +532,7 @@ public abstract class SingletonTask {
 	 * Note that if a request is made to immediately execute the task, any currently pending
 	 * asynchronous execution may actually take place synchronously on the main thread but still be
 	 * considered 'asynchronous' by this method.
-	 * 
+	 *
 	 * @return <code>true</code> if asynchronous
 	 */
 	public final boolean isAsyncExecution() {
@@ -541,7 +541,7 @@ public abstract class SingletonTask {
 
 	/**
 	 * Gets the preparation duration of the previous execution.
-	 * 
+	 *
 	 * @return the preparation duration in milliseconds
 	 */
 	public final long getPreparationDuration() {
@@ -556,7 +556,7 @@ public abstract class SingletonTask {
 	 * <p>
 	 * This value might be useful for debugging purposes and should usually be relatively small
 	 * (less than <code>1</code> millisecond).
-	 * 
+	 *
 	 * @return the duration in milliseconds it took to acquire the execution lock
 	 */
 	public final long getLockAcquireDuration() {
@@ -573,7 +573,7 @@ public abstract class SingletonTask {
 	 * For asynchronous executions this includes the time it took to acquire the
 	 * {@link #getLockAcquireDuration() execution lock}, but which should usually be very small and
 	 * therefore not noticeable in this statistic.
-	 * 
+	 *
 	 * @return the execution delay in milliseconds
 	 */
 	public final long getExecutionDelay() {
@@ -582,7 +582,7 @@ public abstract class SingletonTask {
 
 	/**
 	 * Gets the duration of the previous execution.
-	 * 
+	 *
 	 * @return the execution duration in milliseconds
 	 */
 	public final long getExecutionDuration() {
@@ -594,7 +594,7 @@ public abstract class SingletonTask {
 	 * including all delays caused by the scheduling of any asynchronous task.
 	 * <p>
 	 * This does not include the execution delay and duration of the synchronous callback.
-	 * 
+	 *
 	 * @return the total execution duration in milliseconds
 	 */
 	public final long getTotalDuration() {
@@ -605,7 +605,7 @@ public abstract class SingletonTask {
 	 * Gets a one-line summary of the timing statistics of the last execution.
 	 * <p>
 	 * Detailed timing entries with a value of <code>0</code> are omitted.
-	 * 
+	 *
 	 * @return the timing summary String
 	 */
 	public final String getExecutionTimingString() {

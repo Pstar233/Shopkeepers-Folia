@@ -8,7 +8,6 @@ import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitScheduler;
-import org.bukkit.scheduler.BukkitTask;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
@@ -75,13 +74,10 @@ public abstract class TaskQueue<@NonNull T> implements TaskQueueStatistics {
 
 	/**
 	 * Creates a new {@link TaskQueue}.
-	 * 
-	 * @param plugin
-	 *            the plugin, not <code>null</code>
-	 * @param taskPeriodTicks
-	 *            the period ticks of the task processing work units
-	 * @param workUnitsPerExecution
-	 *            the number of work units that are processed per task execution
+	 *
+	 * @param plugin                the plugin, not <code>null</code>
+	 * @param taskPeriodTicks       the period ticks of the task processing work units
+	 * @param workUnitsPerExecution the number of work units that are processed per task execution
 	 */
 	public TaskQueue(Plugin plugin, int taskPeriodTicks, int workUnitsPerExecution) {
 		Validate.notNull(plugin, "plugin is null");
@@ -189,9 +185,10 @@ public abstract class TaskQueue<@NonNull T> implements TaskQueueStatistics {
 			return;
 		}
 
-		// 开始新任务：
-		task = Bukkit.getAsyncScheduler().runAtFixedRate(plugin, task1 -> this.startTask(), 1 * 50, taskPeriodTicks * 50, TimeUnit.MILLISECONDS);
-		//task = Bukkit.getScheduler().runTaskTimer(plugin, this.createTask(), 1, taskPeriodTicks);
+		// 开始新任务:
+		task = Bukkit.getAsyncScheduler().runAtFixedRate(plugin, task1 -> {
+			this.createTask().run();
+		}, 1 * 50, taskPeriodTicks * 50, TimeUnit.MILLISECONDS);
 	}
 
 	private void stopTask() {

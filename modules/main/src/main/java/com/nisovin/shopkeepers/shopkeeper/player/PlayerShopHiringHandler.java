@@ -1,5 +1,6 @@
 package com.nisovin.shopkeepers.shopkeeper.player;
 
+
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;

@@ -32,11 +32,11 @@ import com.nisovin.shopkeepers.util.java.VoidCallable;
 import com.nisovin.shopkeepers.util.logging.Log;
 
 /**
- * Base class for {@link TradeLogger}s with a single concurrent writer. Trades are buffered and
- * periodically persisted in batches.
+ * 具有单个并发写入器的 {@link  TradeLogger} 的基类。交易被缓冲，并且
+ * 定期分批保留。
  * <p>
- * If any initial setup is required, override {@link #preSetup()}, {@link #asyncSetup()} and
- * {@link #postSetup()} accordingly.
+ * 如果需要任何初始设置，请覆盖 {@link #preSetup（）}、{@link #asyncSetup（）} 和
+ * {@link #postSetup（）}。
  */
 public abstract class AbstractSingleWriterTradeLogger implements TradeLogger {
 
@@ -250,6 +250,7 @@ public abstract class AbstractSingleWriterTradeLogger implements TradeLogger {
 		}
 
 		private class InternalSyncCallbackTask extends SingletonTask.InternalSyncCallbackTask {
+
 		}
 
 		@Override

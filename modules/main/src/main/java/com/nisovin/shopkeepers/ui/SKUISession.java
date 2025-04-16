@@ -84,7 +84,7 @@ public final class SKUISession implements UISession {
 
 	@Override
 	public void closeDelayed() {
-		this.closeDelayedAndRunTask(null);
+//		this.closeDelayedAndRunTask(null, );
 	}
 
 	@Override

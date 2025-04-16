@@ -9,7 +9,7 @@ import com.nisovin.shopkeepers.debug.DebugOptions;
 import com.nisovin.shopkeepers.util.java.Validate;
 
 /**
- * Tool to debug event handlers.
+ * 用于调试事件处理程序的工具。
  */
 public class EventDebugger {
 
@@ -31,15 +31,6 @@ public class EventDebugger {
 					DebugListener.register(logAllEvent, printListeners);
 				}
 			}, 10L);
-
-			// 弃用
-			//Bukkit.getScheduler().runTaskLater(plugin, () -> {
-			//	boolean logAllEvent = Debug.isDebugging(DebugOptions.logAllEvents);
-			//	boolean printListeners = Debug.isDebugging(DebugOptions.printListeners);
-			//	if (logAllEvent || printListeners) {
-			//		DebugListener.register(logAllEvent, printListeners);
-			//	}
-			//}, 10L);
 		}
 	}
 

@@ -41,7 +41,6 @@ import com.nisovin.shopkeepers.lang.Messages;
 import com.nisovin.shopkeepers.shopkeeper.AbstractShopkeeper;
 import com.nisovin.shopkeepers.ui.AbstractShopkeeperUIHandler;
 import com.nisovin.shopkeepers.ui.AbstractUIType;
-import com.nisovin.shopkeepers.ui.SKDefaultUITypes;
 import com.nisovin.shopkeepers.ui.state.UIState;
 import com.nisovin.shopkeepers.util.annotations.ReadOnly;
 import com.nisovin.shopkeepers.util.annotations.ReadWrite;
@@ -67,10 +66,6 @@ public class TradingHandler extends AbstractShopkeeperUIHandler {
 	protected static final int RESULT_ITEM_SLOT_ID = 2;
 
 	private final List<TradingListener> tradingListeners = new ArrayList<>();
-
-	public TradingHandler(AbstractShopkeeper shopkeeper) {
-		this(SKDefaultUITypes.TRADING(), shopkeeper);
-	}
 
 	public TradingHandler(AbstractUIType uiType, AbstractShopkeeper shopkeeper) {
 		super(uiType, shopkeeper);

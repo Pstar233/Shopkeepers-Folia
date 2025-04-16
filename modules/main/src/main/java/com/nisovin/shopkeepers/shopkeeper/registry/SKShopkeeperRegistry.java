@@ -342,7 +342,7 @@ public class SKShopkeeperRegistry implements ShopkeeperRegistry {
 	) {
 		assert shopkeeper != null && shopkeeper.isValid() && cause != null;
 
-		// Call event:
+		// 呼叫事件：
 		Bukkit.getPluginManager().callEvent(new ShopkeeperRemoveEvent(shopkeeper, cause));
 
 		if (!shopkeeper.isValid()) {

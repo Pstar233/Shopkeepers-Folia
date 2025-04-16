@@ -115,8 +115,7 @@ class WorldSaveDespawner {
 
 		void start() {
 			assert !worldData.isWorldSaveRespawnPending();
-			this.task = Bukkit.getGlobalRegionScheduler().run(plugin, task1 -> this.run());
-			//this.task = Bukkit.getScheduler().runTask(plugin, this);
+			this.task = Bukkit.getGlobalRegionScheduler().run(plugin, task1 ->  run());
 			worldData.setWorldSaveRespawnTask(this);
 		}
 

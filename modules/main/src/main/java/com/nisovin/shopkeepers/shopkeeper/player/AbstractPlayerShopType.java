@@ -166,7 +166,7 @@ public abstract class AbstractPlayerShopType<T extends AbstractPlayerShopkeeper>
 		// Check if the player can interact with the spawn location block:
 		if (Settings.checkSpawnLocationInteractionResult && player != null) {
 			var spawnLocationBlock = spawnLocation.getBlock();
-			if (!InteractionUtils.checkBlockInteract(player, spawnLocationBlock, true)) {
+			if (!InteractionUtils.checkBlockInteract(player, spawnLocationBlock)) {
 				TextUtils.sendMessage(player, Messages.restrictedArea);
 				return false;
 			}

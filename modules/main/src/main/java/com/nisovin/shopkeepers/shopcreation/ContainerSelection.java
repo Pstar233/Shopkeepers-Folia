@@ -136,7 +136,7 @@ public class ContainerSelection {
 		}
 
 		// Check if the player can access the container by triggering a dummy interact event:
-		if (!InteractionUtils.checkBlockInteract(player, containerBlock, false)) {
+		if (!InteractionUtils.checkBlockInteract(player, containerBlock)) {
 			TextUtils.sendMessage(player, Messages.noContainerAccess);
 			return false;
 		}

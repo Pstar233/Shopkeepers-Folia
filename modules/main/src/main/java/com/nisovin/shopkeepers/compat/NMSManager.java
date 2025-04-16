@@ -34,13 +34,13 @@ public final class NMSManager {
 	// frequently.
 	static {
 		// Registered in the order from latest to oldest.
-		register(new CompatVersion("1_21_R5", "1.21.5", "7ecad754373a5fbc43d381d7450c53a5"));
 		register(new CompatVersion("1_21_R4", "1.21.4", "60ac387ca8007aa018e6aeb394a6988c"));
 		register(new CompatVersion("1_21_R3", "1.21.3", "61a218cda78417b6039da56e08194083"));
 		// Note: 1.21.2 was immediately replaced by 1.21.3 and is not supported.
 		register(new CompatVersion("1_21_R2", "1.21.1", "7092ff1ff9352ad7e2260dc150e6a3ec"));
 		register(new CompatVersion("1_21_R1", "1.21", "229d7afc75b70a6c388337687ac4da1f"));
 		// Note: MC 1.20.6 completely replaced 1.20.5. We only support 1.20.6.
+		register(new CompatVersion("1_20_R5", "1.20.6", "ee13f98a43b9c5abffdcc0bb24154460"));
 	}
 
 	public static @Nullable CompatVersion getCompatVersion(String compatVersion) {

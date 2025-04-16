@@ -426,12 +426,12 @@ public final class TextUtils {
 
 	public static Text getPlayerText(Player player) {
 		Validate.notNull(player, "player is null");
-		return getPlayerText(player.getName(), player.getUniqueId());
-	}
-
-	public static Text getPlayerText(User user) {
-		Validate.notNull(user, "user is null");
-		return getPlayerText(user.getName(), user.getUniqueId());
+		String playerName = Unsafe.assertNonNull(player.getName());
+		String playerUUIDString = player.getUniqueId().toString();
+		return Text.hoverEvent(Text.of(playerUUIDString))
+				.childInsertion(playerUUIDString)
+				.childText(playerName)
+				.buildRoot();
 	}
 
 	public static Text getPlayerText(@Nullable String playerName, @Nullable UUID playerUUID) {
@@ -472,8 +472,7 @@ public final class TextUtils {
 			// Item SNBT is not supported.
 			return Text.text("");
 		} else {
-			var unmodifiableItem = UnmodifiableItemStack.ofNonNull(itemStack);
-			return Text.hoverEvent(new HoverEventText.ItemContent(unmodifiableItem));
+			return Text.hoverEvent(HoverEventText.Action.SHOW_ITEM, Text.of(itemSNBT));
 		}
 	}
 
@@ -494,8 +493,7 @@ public final class TextUtils {
 		// Note: This might not necessarily match the name that is usually displayed for an
 		// ItemStack, but rather the translated item type name (for example for items such as
 		// different types of potions, skulls, etc.).
-		//String translationKey = material.getTranslationKey() 已弃用
-		String translationKey = material.translationKey();
+		String translationKey = material.getTranslationKey();
 		// We use the formatted name as fallback.
 		return Text.translatable(translationKey).child(formattedName).getRoot();
 	}

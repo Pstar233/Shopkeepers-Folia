@@ -6,7 +6,9 @@ import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
+import com.nisovin.shopkeepers.util.taskqueue.TaskQueue;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.DragType;
@@ -136,9 +138,6 @@ public abstract class AbstractEquipmentEditorHandler extends UIHandler {
 		case "BODY": // TODO Added in Bukkit 1.20.5
 			displayName = Messages.equipmentSlotBody;
 			break;
-		case "SADDLE": // TODO Added in Bukkit 1.21.5
-			displayName = Messages.equipmentSlotSaddle;
-			break;
 		default:
 			// Fallback:
 			displayName = EnumUtils.formatEnumName(equipmentSlot.name());
@@ -207,29 +206,23 @@ public abstract class AbstractEquipmentEditorHandler extends UIHandler {
 		Inventory inventory = view.getTopInventory();
 
 		if (rightClick) {
-			// 清空装备槽位：
-			Bukkit.getGlobalRegionScheduler().run(ShopkeepersPlugin.getInstance(), task -> {
+			// Clear the equipment slot:
+			Location location = view.getPlayer().getLocation();
+			Bukkit.getRegionScheduler().run(ShopkeepersPlugin.getInstance(), location, task -> {
 				if (view.getPlayer().getOpenInventory() != view) return;
 
 				inventory.setItem(rawSlot, this.toEditorEquipmentItem(equipmentSlot, null));
 				onEquipmentChanged(uiSession, equipmentSlot, null);
 			});
-
-			//弃用
-			//Bukkit.getScheduler().runTask(ShopkeepersPlugin.getInstance(), () -> {
-			//	if (view.getPlayer().getOpenInventory() != view) return;
-            //
-			//	inventory.setItem(rawSlot, this.toEditorEquipmentItem(equipmentSlot, null));
-			//	onEquipmentChanged(uiSession, equipmentSlot, null);
-			//});
 			return;
 		}
 
 		ItemStack cursorClone = getCursorCopy.get();
 		if (leftClick && !ItemUtils.isEmpty(cursorClone)) {
 			assert cursorClone != null;
-			// 将光标中的项：
-			Bukkit.getGlobalRegionScheduler().run(ShopkeepersPlugin.getInstance(), task -> {
+			// Place the item from the cursor:
+			Location location = view.getPlayer().getLocation();
+			Bukkit.getRegionScheduler().run(ShopkeepersPlugin.getInstance(), location, task -> {
 				if (view.getPlayer().getOpenInventory() != view) return;
 
 				cursorClone.setAmount(1);
@@ -247,27 +240,6 @@ public abstract class AbstractEquipmentEditorHandler extends UIHandler {
 				// for the editor item anyway):
 				inventory.setItem(rawSlot, this.toEditorEquipmentItem(equipmentSlot, substitutedItem));
 			});
-
-			/* 弃用
-			Bukkit.getScheduler().runTask(ShopkeepersPlugin.getInstance(), () -> {
-				if (view.getPlayer().getOpenInventory() != view) return;
-
-				cursorClone.setAmount(1);
-
-				// Replace placeholder item, if this is one:
-				ItemStack substitutedItem = PlaceholderItems.replaceNonNull(cursorClone);
-
-				// Inform about the new equipment item:
-				// No item copy required: The item is already a copy, and for the item in the editor
-				// we create a separate copy subsequently.
-				onEquipmentChanged(uiSession, equipmentSlot, UnmodifiableItemStack.of(substitutedItem));
-
-				// Update the item in the editor:
-				// This copies the item internally (but irrelevant, because we already create a copy
-				// for the editor item anyway):
-				inventory.setItem(rawSlot, this.toEditorEquipmentItem(equipmentSlot, substitutedItem));
-			});
-			*/
 		}
 	}
 

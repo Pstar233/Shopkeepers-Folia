@@ -9,7 +9,7 @@ import com.nisovin.shopkeepers.util.inventory.ItemData;
 import com.nisovin.shopkeepers.util.inventory.ItemUtils;
 
 /**
- * Helpers related to the updating of items. See {@link UpdateItemEvent}.
+ * 与项目更新相关的帮助程序。请参阅 {@link UpdateItemEvent}。
  */
 public class ItemUpdates {
 

@@ -183,7 +183,7 @@ public class ShopkeeperMoving {
 		// Inform the player:
 		TextUtils.sendMessage(player, Messages.shopkeeperMoved);
 
-		// Call an event:
+		// 调用事件：
 		Bukkit.getPluginManager().callEvent(new ShopkeeperEditedEvent(shopkeeper, player));
 
 		// Save the shopkeeper:

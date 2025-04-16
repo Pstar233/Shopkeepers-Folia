@@ -440,7 +440,7 @@ public final class VillagerEditorHandler extends AbstractEditorHandler {
 					// Copy storage contents:
 					customInventory.setStorageContents(villagerInventory.getStorageContents());
 					player.openInventory(customInventory);
-				});
+				} );
 				return true;
 			}
 		};
@@ -491,51 +491,51 @@ public final class VillagerEditorHandler extends AbstractEditorHandler {
 			@Override
 			public @Nullable ItemStack getIcon(EditorSession editorSession) {
 				ItemStack iconItem;
-				switch (profession) {
-				case ARMORER:
+				switch (profession.name().toUpperCase()) {
+				case "ARMORER":
 					iconItem = new ItemStack(Material.BLAST_FURNACE);
 					break;
-				case BUTCHER:
+				case "BUTCHER":
 					iconItem = new ItemStack(Material.SMOKER);
 					break;
-				case CARTOGRAPHER:
+				case "CARTOGRAPHER":
 					iconItem = new ItemStack(Material.CARTOGRAPHY_TABLE);
 					break;
-				case CLERIC:
+				case "CLERIC":
 					iconItem = new ItemStack(Material.BREWING_STAND);
 					break;
-				case FARMER:
+				case "FARMER":
 					iconItem = new ItemStack(Material.WHEAT); // Instead of COMPOSTER
 					break;
-				case FISHERMAN:
+				case "FISHERMAN":
 					iconItem = new ItemStack(Material.FISHING_ROD); // Instead of BARREL
 					break;
-				case FLETCHER:
+				case "FLETCHER":
 					iconItem = new ItemStack(Material.FLETCHING_TABLE);
 					break;
-				case LEATHERWORKER:
+				case "LEATHERWORKER":
 					iconItem = new ItemStack(Material.LEATHER); // Instead of CAULDRON
 					break;
-				case LIBRARIAN:
+				case "LIBRARIAN":
 					iconItem = new ItemStack(Material.LECTERN);
 					break;
-				case MASON:
+				case "MASON":
 					iconItem = new ItemStack(Material.STONECUTTER);
 					break;
-				case SHEPHERD:
+				case "SHEPHERD":
 					iconItem = new ItemStack(Material.LOOM);
 					break;
-				case TOOLSMITH:
+				case "TOOLSMITH":
 					iconItem = new ItemStack(Material.SMITHING_TABLE);
 					break;
-				case WEAPONSMITH:
+				case "WEAPONSMITH":
 					iconItem = new ItemStack(Material.GRINDSTONE);
 					break;
-				case NITWIT:
+				case "NITWIT":
 					iconItem = new ItemStack(Material.LEATHER_CHESTPLATE);
 					ItemUtils.setLeatherColor(iconItem, Color.GREEN);
 					break;
-				case NONE:
+				case "NONE":
 				default:
 					iconItem = new ItemStack(Material.BARRIER);
 					break;
@@ -593,27 +593,27 @@ public final class VillagerEditorHandler extends AbstractEditorHandler {
 			@Override
 			public @Nullable ItemStack getIcon(EditorSession editorSession) {
 				ItemStack iconItem = new ItemStack(Material.LEATHER_CHESTPLATE);
-				switch (villagerType) {
+				switch (villagerType.name().toUpperCase()) {
 				default:
-				case PLAINS:
+				case "PLAINS":
 					// Default brown color:
 					break;
-				case DESERT:
+				case "DESERT":
 					ItemUtils.setLeatherColor(iconItem, Color.ORANGE);
 					break;
-				case JUNGLE:
+				case "JUNGLE":
 					ItemUtils.setLeatherColor(iconItem, Color.YELLOW.mixColors(Color.ORANGE));
 					break;
-				case SAVANNA:
+				case "SAVANNA":
 					ItemUtils.setLeatherColor(iconItem, Color.RED);
 					break;
-				case SNOW:
+				case "SNOW":
 					ItemUtils.setLeatherColor(iconItem, DyeColor.CYAN.getColor());
 					break;
-				case SWAMP:
+				case "SWAMP":
 					ItemUtils.setLeatherColor(iconItem, DyeColor.PURPLE.getColor());
 					break;
-				case TAIGA:
+				case "TAIGA":
 					ItemUtils.setLeatherColor(iconItem, Color.WHITE.mixDyes(DyeColor.BROWN));
 					break;
 				}

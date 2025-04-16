@@ -4,13 +4,16 @@ import java.util.Objects;
 import java.util.function.Predicate;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.plugin.Plugin;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.nisovin.shopkeepers.api.ShopkeepersPlugin;
@@ -21,7 +24,7 @@ import com.nisovin.shopkeepers.util.annotations.ReadWrite;
 import com.nisovin.shopkeepers.util.java.Validate;
 
 /**
- * Utility functions related to inventories.
+ * 与库存相关的实用功能。
  */
 public final class InventoryUtils {
 
@@ -636,31 +639,31 @@ public final class InventoryUtils {
 
 	public static void updateInventoryLater(Player player) {
 		Validate.notNull(player, "player is null");
-		Bukkit.getGlobalRegionScheduler().run(ShopkeepersPlugin.getInstance(), task -> player.updateInventory());
-		//Bukkit.getScheduler().runTask(ShopkeepersPlugin.getInstance(), player::updateInventory);
+		Location location = player.getLocation();
+		Bukkit.getRegionScheduler().run(ShopkeepersPlugin.getInstance(), location, task -> {
+			player.updateInventory();
+		});
 	}
 
 	// Only closes the player's open inventory view if it is still the specified view after the
 	// delay:
 	public static void closeInventoryDelayed(InventoryView inventoryView) {
 		Validate.notNull(inventoryView, "inventoryView is null");
-		Bukkit.getGlobalRegionScheduler().run(ShopkeepersPlugin.getInstance(), task -> {
+
+		Location location = inventoryView.getPlayer().getLocation();
+		Bukkit.getRegionScheduler().run(ShopkeepersPlugin.getInstance(), location, task -> {
 			InventoryView openInventoryView = inventoryView.getPlayer().getOpenInventory();
 			if (inventoryView == openInventoryView) {
 				inventoryView.close(); // Same as player.closeInventory()
 			}
 		});
-		//Bukkit.getScheduler().runTask(ShopkeepersPlugin.getInstance(), () -> {
-		//	InventoryView openInventoryView = inventoryView.getPlayer().getOpenInventory();
-		//	if (inventoryView == openInventoryView) {
-		//		inventoryView.close(); // Same as player.closeInventory()
-		//	}
-		//});
 	}
 
 	public static void closeInventoryDelayed(Player player) {
-		Bukkit.getGlobalRegionScheduler().run(ShopkeepersPlugin.getInstance(), task -> player.closeInventory());
-		//Bukkit.getScheduler().runTask(ShopkeepersPlugin.getInstance(), player::closeInventory);
+		Location location = player.getLocation();
+		Bukkit.getRegionScheduler().run(ShopkeepersPlugin.getInstance(), location, task -> {
+			player.closeInventory();
+		});
 	}
 
 	// This can for example be used during the handling of inventory interaction events.
@@ -670,12 +673,32 @@ public final class InventoryUtils {
 			@ReadOnly @Nullable ItemStack itemStack
 	) {
 		Validate.notNull(inventory, "inventory is null");
-		Bukkit.getGlobalRegionScheduler().run(ShopkeepersPlugin.getInstance(), task -> {
-			inventory.setItem(slot, itemStack); // 这会在内部复制项目
-		});
-		//Bukkit.getScheduler().runTask(ShopkeepersPlugin.getInstance(), () -> {
-		//	inventory.setItem(slot, itemStack); // This copies the item internally
-		//});
+		inventory.setItem(slot, itemStack);
+	}
+
+	// TODO Replace this with the corresponding Bukkit API method added in late 1.15.2. See
+	// https://hub.spigotmc.org/stash/projects/SPIGOT/repos/bukkit/commits/da9ef3c55fa3bce91f7fdcd77d50171be7297d7d
+	// Note: MC 1.20.5 added EquipmentSlot.Body. E.g. used for horse armor. Not relevant for
+	// PlayerInventory.
+	public static @Nullable ItemStack getItem(PlayerInventory playerInventory, EquipmentSlot slot) {
+		Validate.notNull(playerInventory, "playerInventory is null");
+		Validate.notNull(slot, "slot is null");
+		switch (slot) {
+		case HAND:
+			return playerInventory.getItemInMainHand();
+		case OFF_HAND:
+			return playerInventory.getItemInOffHand();
+		case FEET:
+			return playerInventory.getBoots();
+		case LEGS:
+			return playerInventory.getLeggings();
+		case CHEST:
+			return playerInventory.getChestplate();
+		case HEAD:
+			return playerInventory.getHelmet();
+		default:
+			return null;
+		}
 	}
 
 	private InventoryUtils() {

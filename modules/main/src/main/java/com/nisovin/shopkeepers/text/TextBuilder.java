@@ -261,19 +261,21 @@ public abstract class TextBuilder extends AbstractText {
 	 * Creates a new {@link TextBuilder} with the specified hover event and sets it as
 	 * {@link #child(Text) child} Text.
 	 * 
-	 * @param content
-	 *            the hover event content, not <code>null</code>
+	 * @param action
+	 *            the hover event action, not <code>null</code>
+	 * @param value
+	 *            the hover event value, not <code>null</code>
 	 * @return the new {@link TextBuilder}
 	 */
-	public TextBuilder childHoverEvent(HoverEventText.Content content) {
-		return this.child(Text.hoverEvent(content));
+	public TextBuilder childHoverEvent(HoverEventText.Action action, Text value) {
+		return this.child(Text.hoverEvent(action, value));
 	}
 
 	/**
 	 * Creates a new {@link TextBuilder} with the specified hover text and sets it as
 	 * {@link #child(Text) child} Text.
 	 * <p>
-	 * This is a shortcut for the corresponding {@link #childHoverEvent(HoverEventText.Content)}.
+	 * This is a shortcut for the corresponding {@link #hoverEvent(HoverEventText.Action, Text)}.
 	 * 
 	 * @param hoverText
 	 *            the hover text, not <code>null</code>
@@ -421,19 +423,21 @@ public abstract class TextBuilder extends AbstractText {
 	 * Creates a new {@link TextBuilder} with the specified hover event and sets it as
 	 * {@link #next(Text) next} Text.
 	 * 
-	 * @param content
-	 *            the hover event content, not <code>null</code>
+	 * @param action
+	 *            the hover event action, not <code>null</code>
+	 * @param value
+	 *            the hover event value, not <code>null</code>
 	 * @return the new {@link TextBuilder}
 	 */
-	public TextBuilder hoverEvent(HoverEventText.Content content) {
-		return this.next(Text.hoverEvent(content));
+	public TextBuilder hoverEvent(HoverEventText.Action action, Text value) {
+		return this.next(Text.hoverEvent(action, value));
 	}
 
 	/**
 	 * Creates a new {@link TextBuilder} with the specified hover text and sets it as
 	 * {@link #next(Text) next} Text.
 	 * <p>
-	 * This is a shortcut for the corresponding {@link #hoverEvent(HoverEventText.Content)}.
+	 * This is a shortcut for the corresponding {@link #hoverEvent(HoverEventText.Action, Text)}.
 	 * 
 	 * @param hoverText
 	 *            the hover text, not <code>null</code>

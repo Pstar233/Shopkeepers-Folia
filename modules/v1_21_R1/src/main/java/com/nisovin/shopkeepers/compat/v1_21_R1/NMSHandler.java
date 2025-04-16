@@ -254,8 +254,4 @@ public final class NMSHandler implements NMSCallProvider {
 	//}
 
 
-	@Override
-	public boolean supportsItemSNBTHoverEvents() {
-		return true; // Supported in MC versions before 1.21.5
-	}
 }

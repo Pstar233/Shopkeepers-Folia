@@ -2,6 +2,7 @@ package com.nisovin.shopkeepers.villagers;
 
 import java.util.Map;
 
+import org.bukkit.Bukkit;
 import org.bukkit.entity.AbstractVillager;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -213,7 +214,7 @@ public class VillagerInteractionListener implements Listener {
 				player,
 				entity
 		);
-		plugin.getServer().getPluginManager().callEvent(fakeDamageEvent);
+		Bukkit.getPluginManager().callEvent(fakeDamageEvent);
 		return !fakeDamageEvent.isCancelled();
 	}
 }

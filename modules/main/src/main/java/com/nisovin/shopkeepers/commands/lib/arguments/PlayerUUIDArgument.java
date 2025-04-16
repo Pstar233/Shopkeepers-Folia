@@ -3,15 +3,17 @@ package com.nisovin.shopkeepers.commands.lib.arguments;
 import java.util.Collections;
 import java.util.Locale;
 import java.util.UUID;
+import java.util.stream.Stream;
 
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
+import com.nisovin.shopkeepers.api.internal.util.Unsafe;
 import com.nisovin.shopkeepers.commands.lib.CommandInput;
 import com.nisovin.shopkeepers.commands.lib.argument.filter.ArgumentFilter;
 import com.nisovin.shopkeepers.commands.lib.context.CommandContextView;
 import com.nisovin.shopkeepers.lang.Messages;
 import com.nisovin.shopkeepers.text.Text;
-import com.nisovin.shopkeepers.util.bukkit.EntityUtils;
 
 /**
  * Provides suggestions for the UUIDs of online players.
@@ -79,7 +81,9 @@ public class PlayerUUIDArgument extends ObjectUUIDArgument {
 		}
 
 		String normalizedUUIDPrefix = uuidPrefix.toLowerCase(Locale.ROOT);
-		return EntityUtils.getOnlinePlayersStream()
+		// TODO Cast: Workaround for a limitation of CheckerFramework
+		Stream<Player> onlinePlayers = Unsafe.castNonNull(Bukkit.getOnlinePlayers().stream());
+		return onlinePlayers
 				.filter(player -> playerFilter.test(input, context, player))
 				.map(Player::getUniqueId)
 				.filter(uuid -> {

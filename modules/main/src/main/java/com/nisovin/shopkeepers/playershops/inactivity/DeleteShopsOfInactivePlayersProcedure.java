@@ -9,6 +9,7 @@ import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -99,7 +100,7 @@ class DeleteShopsOfInactivePlayersProcedure {
 	}
 
 	private void asyncCheckInactivityOfAllShopOwnersAndContinue() {
-		// We retrieve the OfflinePlayers and their 'last played' times asynchronously:
+		// 我们异步检索 OfflinePlayers 及其“上次播放”时间：
 		new BukkitRunnable() {
 			@Override
 			public void run() {
@@ -110,10 +111,9 @@ class DeleteShopsOfInactivePlayersProcedure {
 				// Abort if no inactive players were found:
 				if (inactivePlayers.isEmpty()) return;
 
-				// Abort if the task has been cancelled in the meantime (e.g. if the plugin has been
-				// disabled or reloaded):
+				// 如果任务在此期间已被取消（例如，如果插件已
+				// disabled 或 reloaded）：
 				if (this.isCancelled()) return;
-
 				SchedulerUtils.runTaskOrOmit(plugin, () -> continueWithInactiveShopOwners());
 			}
 		}.runTaskAsynchronously(plugin);
@@ -169,12 +169,15 @@ class DeleteShopsOfInactivePlayersProcedure {
 
 	private void collectShopsOfInactivePlayers() {
 		shopkeeperRegistry.getAllPlayerShopkeepers().forEach(playerShop -> {
-			// If the shop is owned by an inactive player, remember it for removal:
-			User shopOwner = playerShop.getOwnerUser();
-			InactivePlayerData inactivePlayerData = inactivePlayers.get(shopOwner);
-			if (inactivePlayerData != null) {
-				inactivePlayerData.getShopkeepers().add(playerShop);
-			}
+			Location location = playerShop.getLocation();
+			Bukkit.getRegionScheduler().run(plugin, location, task -> {
+				// If the shop is owned by an inactive player, remember it for removal:
+				User shopOwner = playerShop.getOwnerUser();
+				InactivePlayerData inactivePlayerData = inactivePlayers.get(shopOwner);
+				if (inactivePlayerData != null) {
+					inactivePlayerData.getShopkeepers().add(playerShop);
+				}
+			});
 		});
 		// Note: For some inactive shop owners we might no longer find any shopkeepers. Their
 		// entries will then not contain any shopkeepers.
@@ -208,19 +211,22 @@ class DeleteShopsOfInactivePlayersProcedure {
 
 			// Delete the shopkeepers:
 			shopkeepers.forEach(playerShop -> {
-				if (!playerShop.isValid()) {
-					// The shopkeeper has already been removed in the meantime.
-					Log.debug(() -> playerShop.getUniqueIdLogPrefix()
-							+ "Deletion due to inactivity of owner " + playerShop.getOwnerString()
-							+ " (last seen " + inactivePlayerData.getLastSeenDaysAgo()
-							+ " days ago)" + " skipped: The shopkeeper has already been removed.");
-					return;
-				}
+				Location location = playerShop.getLocation();
+				Bukkit.getRegionScheduler().run(plugin, location, task -> {
+					if (!playerShop.isValid()) {
+						// The shopkeeper has already been removed in the meantime.
+						Log.debug(() -> playerShop.getUniqueIdLogPrefix()
+								+ "Deletion due to inactivity of owner " + playerShop.getOwnerString()
+								+ " (last seen " + inactivePlayerData.getLastSeenDaysAgo()
+								+ " days ago)" + " skipped: The shopkeeper has already been removed.");
+						return;
+					}
 
-				Log.info(playerShop.getUniqueIdLogPrefix() + "Deletion due to inactivity of owner "
-						+ playerShop.getOwnerString() + " (last seen "
-						+ inactivePlayerData.getLastSeenDaysAgo() + " days ago).");
-				playerShop.delete();
+					Log.info(playerShop.getUniqueIdLogPrefix() + "Deletion due to inactivity of owner "
+							+ playerShop.getOwnerString() + " (last seen "
+							+ inactivePlayerData.getLastSeenDaysAgo() + " days ago).");
+					playerShop.delete();
+				});
 			});
 		});
 

@@ -2,13 +2,13 @@ package com.nisovin.shopkeepers.shopobjects.block.base;
 
 import org.bukkit.block.Block;
 import org.bukkit.event.block.BlockPhysicsEvent;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.nisovin.shopkeepers.SKShopkeepersPlugin;
 import com.nisovin.shopkeepers.api.internal.util.Unsafe;
 import com.nisovin.shopkeepers.api.shopkeeper.Shopkeeper;
 import com.nisovin.shopkeepers.api.shopobjects.ShopObjectType;
 import com.nisovin.shopkeepers.shopkeeper.registry.SKShopkeeperRegistry;
-import com.nisovin.shopkeepers.util.bukkit.BlockLocation;
 import com.nisovin.shopkeepers.util.java.Validate;
 
 /**
@@ -106,48 +106,12 @@ public class BaseBlockShops {
 	}
 
 	/**
-	 * Adds a "ticket" to request the cancellation of all subsequent {@link BlockPhysicsEvent}s
-	 * affecting the location of the given block. The ticket can be removed again via
-	 * {@link #removeBlockPhysicsCancellation(Block)}.
+	 * Cancels all subsequent {@link BlockPhysicsEvent}s at the specified block location.
 	 * 
 	 * @param block
-	 *            the block , not <code>null</code>
+	 *            the block, or <code>null</code> to reset
 	 */
-	public void addBlockPhysicsCancellation(Block block) {
-		blockShopListener.addBlockPhysicsCancellation(block);
-	}
-
-	/**
-	 * Removes a block physics cancellation "ticket" again that was previously added via
-	 * {@link #addBlockPhysicsCancellation(Block)}.
-	 * 
-	 * @param block
-	 *            the block, not <code>null</code>
-	 */
-	public void removeBlockPhysicsCancellation(Block block) {
-		blockShopListener.removeBlockPhysicsCancellation(block);
-	}
-
-	/**
-	 * Adds a "ticket" to request the cancellation of all subsequent {@link BlockPhysicsEvent}s
-	 * affecting the specified block location. The ticket can be removed again via
-	 * {@link #removeBlockPhysicsCancellation(BlockLocation)}.
-	 * 
-	 * @param blockLocation
-	 *            the block location, not <code>null</code>
-	 */
-	public void addBlockPhysicsCancellation(BlockLocation blockLocation) {
-		blockShopListener.addBlockPhysicsCancellation(blockLocation);
-	}
-
-	/**
-	 * Removes a block physics cancellation "ticket" again that was previously added via
-	 * {@link #addBlockPhysicsCancellation(BlockLocation)}.
-	 * 
-	 * @param blockLocation
-	 *            the block location, not <code>null</code>
-	 */
-	public void removeBlockPhysicsCancellation(BlockLocation blockLocation) {
-		blockShopListener.removeBlockPhysicsCancellation(blockLocation);
+	public void cancelNextBlockPhysics(@Nullable Block block) {
+		blockShopListener.cancelNextBlockPhysics(block);
 	}
 }

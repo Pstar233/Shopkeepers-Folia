@@ -44,9 +44,9 @@ public class SKRegularAdminShopkeeper
 
 	@Override
 	protected void setup() {
-		this.registerUIHandlerIfMissing(DefaultUITypes.EDITOR(), () -> {
-			return new RegularAdminShopEditorHandler(this);
-		});
+		if (this.getUIHandler(DefaultUITypes.EDITOR()) == null) {
+			this.registerUIHandler(new RegularAdminShopEditorHandler(this));
+		}
 		super.setup();
 	}
 

@@ -14,10 +14,11 @@ import org.bukkit.inventory.ItemStack;
 
 import com.nisovin.shopkeepers.lang.Messages;
 import com.nisovin.shopkeepers.util.bukkit.TextUtils;
+import com.nisovin.shopkeepers.util.inventory.InventoryUtils;
 import com.nisovin.shopkeepers.util.logging.Log;
 
 /**
- * 防止僵尸村民被治愈
+ * Prevents curing of zombie villagers.
  */
 public class BlockZombieVillagerCuringListener implements Listener {
 
@@ -30,7 +31,7 @@ public class BlockZombieVillagerCuringListener implements Listener {
 	void onZombieVillagerCureStarted(PlayerInteractEntityEvent event) {
 		if (!(event.getRightClicked() instanceof ZombieVillager)) return;
 		Player player = event.getPlayer();
-		ItemStack itemInHand = player.getInventory().getItem(event.getHand());
+		ItemStack itemInHand = InventoryUtils.getItem(player.getInventory(), event.getHand());
 		if (itemInHand != null && itemInHand.getType() == Material.GOLDEN_APPLE) {
 			// Prevent curing:
 			Log.debug(() -> "Preventing zombie villager curing at "

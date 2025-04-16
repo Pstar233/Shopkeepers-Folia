@@ -135,20 +135,14 @@ class CitizensListener implements Listener {
 				this.reset();
 				this.handleTrait(trait, player); // Handle with player (can be null though)
 			} else {
-				// The task should get reset before we reach this state. We check for this anyway
-				// just in case.
+				// 在我们达到此状态之前，任务应该被重置。无论如何，我们都会检查这个
+				//以防万一。
 				assert pendingTraitTask == null;
 				if (pendingTraitTask == null || Unsafe.assertNonNull(pendingTraitTask).isCancelled()) {
-
 					pendingTraitTask = Bukkit.getGlobalRegionScheduler().runDelayed(plugin, task -> {
 						pendingTraitTask = null; // Reset
 						reset(); // Handles any currently pending trait
 					}, 1L);
-
-					//pendingTraitTask = Bukkit.getScheduler().runTaskLater(plugin, () -> {
-					//	pendingTraitTask = null; // Reset
-					//	reset(); // Handles any currently pending trait
-					//}, 1L);
 				} // Else: There is already an active task that will handle the pending trait later.
 			}
 		}

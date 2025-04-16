@@ -116,38 +116,38 @@ public class CatShop extends SittableShop<Cat> {
 
 	private ItemStack getCatTypeEditorItem() {
 		ItemStack iconItem = new ItemStack(Material.LEATHER_CHESTPLATE);
-		switch (this.getCatType()) {
-		case TABBY:
+		switch (this.getCatType().name().toUpperCase()) {
+		case "TABBY":
 			ItemUtils.setLeatherColor(iconItem, Color.BLACK.mixColors(Color.ORANGE));
 			break;
-		case ALL_BLACK:
+		case "ALL_BLACK":
 			ItemUtils.setLeatherColor(iconItem, Color.BLACK);
 			break;
-		case BLACK:
+		case "BLACK":
 			ItemUtils.setLeatherColor(iconItem, Color.BLACK.mixDyes(DyeColor.GRAY));
 			break;
-		case BRITISH_SHORTHAIR:
+		case "BRITISH_SHORTHAIR":
 			ItemUtils.setLeatherColor(iconItem, Color.SILVER);
 			break;
-		case CALICO:
+		case "CALICO":
 			ItemUtils.setLeatherColor(iconItem, Color.ORANGE.mixDyes(DyeColor.BROWN));
 			break;
-		case JELLIE:
+		case "JELLIE":
 			ItemUtils.setLeatherColor(iconItem, Color.GRAY);
 			break;
-		case PERSIAN:
+		case "PERSIAN":
 			ItemUtils.setLeatherColor(iconItem, Color.WHITE.mixDyes(DyeColor.ORANGE));
 			break;
-		case RAGDOLL:
+		case "RAGDOLL":
 			ItemUtils.setLeatherColor(iconItem, Color.WHITE.mixDyes(DyeColor.BROWN));
 			break;
-		case RED:
+		case "RED":
 			ItemUtils.setLeatherColor(iconItem, Color.ORANGE);
 			break;
-		case SIAMESE:
+		case "SIAMESE":
 			ItemUtils.setLeatherColor(iconItem, Color.GRAY.mixDyes(DyeColor.BROWN));
 			break;
-		case WHITE:
+		case "WHITE":
 			ItemUtils.setLeatherColor(iconItem, Color.WHITE);
 			break;
 		default:

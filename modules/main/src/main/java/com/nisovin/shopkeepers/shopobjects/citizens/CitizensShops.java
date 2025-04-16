@@ -8,8 +8,10 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
+import com.nisovin.shopkeepers.util.taskqueue.TaskQueue;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.command.PluginCommandYamlParser;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.event.HandlerList;
@@ -180,8 +182,7 @@ public class CitizensShops {
 		citizensListener.onEnable();
 
 		// 延迟在店主和 NPC 加载后运行：
-		Bukkit.getGlobalRegionScheduler().runDelayed(plugin, task -> new  DelayedSetupTask(), 3L *50);
-		//Bukkit.getScheduler().runTaskLater(plugin, new DelayedSetupTask(), 3L); 弃用
+		Bukkit.getGlobalRegionScheduler().runDelayed(plugin, task -> new DelayedSetupTask(), 3L);
 
 		// Enabled:
 		citizensShopsEnabled = true;
@@ -195,9 +196,12 @@ public class CitizensShops {
 			// Check for invalid Citizens shopkeepers:
 			validateCitizenShopkeepers(Settings.deleteInvalidCitizenShopkeepers, false);
 
-			// Inform the Citizens NPC shop objects:
+			// 通知市民 NPC 商店对象：
 			shopkeepersByNpcId.values().stream().flatMap(List::stream).forEach(shopkeeper -> {
-				((SKCitizensShopObject) shopkeeper.getShopObject()).onCitizensShopsEnabled();
+				Location location = shopkeeper.getLocation();
+				Bukkit.getRegionScheduler().run(plugin, location ,task -> {
+					((SKCitizensShopObject) shopkeeper.getShopObject()).onCitizensShopsEnabled();
+				});
 			});
 		}
 	}

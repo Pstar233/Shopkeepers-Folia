@@ -54,6 +54,7 @@ import com.nisovin.shopkeepers.shopobjects.AbstractShopObject;
 import com.nisovin.shopkeepers.shopobjects.AbstractShopObjectType;
 import com.nisovin.shopkeepers.shopobjects.ShopObjectData;
 import com.nisovin.shopkeepers.text.Text;
+import com.nisovin.shopkeepers.ui.SKDefaultUITypes;
 import com.nisovin.shopkeepers.ui.UIHandler;
 import com.nisovin.shopkeepers.ui.trading.TradingHandler;
 import com.nisovin.shopkeepers.util.annotations.ReadWrite;
@@ -316,10 +317,10 @@ public abstract class AbstractShopkeeper implements Shopkeeper {
 	 * {@link #onAdded(ShopkeeperAddedEvent.Cause)} may be better suited.
 	 */
 	protected void setup() {
-		// Default trading handler:
-		this.registerUIHandlerIfMissing(DefaultUITypes.TRADING(), () -> {
-			return new TradingHandler(this);
-		});
+		// Add a default trading handler, if none is provided:
+		if (this.getUIHandler(DefaultUITypes.TRADING()) == null) {
+			this.registerUIHandler(new TradingHandler(SKDefaultUITypes.TRADING(), this));
+		}
 	}
 
 	/**
@@ -1543,10 +1544,10 @@ public abstract class AbstractShopkeeper implements Shopkeeper {
 	}
 
 	/**
-	 * Registers a {@link UIHandler} that implements a specific type of user interface for this
+	 * Registers an {@link UIHandler} which handles a specific type of user interface for this
 	 * shopkeeper.
 	 * <p>
-	 * This replaces any {@link UIHandler} that has been previously registered for the same
+	 * This replaces any {@link UIHandler} which has been previously registered for the same
 	 * {@link UIType}.
 	 * 
 	 * @param uiHandler
@@ -1558,30 +1559,11 @@ public abstract class AbstractShopkeeper implements Shopkeeper {
 	}
 
 	/**
-	 * Registers a {@link UIHandler} that implements a specific type of user interface for this
-	 * shopkeeper if no other UI handler is registered yet.
+	 * Gets the {@link UIHandler} this shopkeeper is using for the specified {@link UIType}.
 	 * 
 	 * @param uiType
-	 *            the {@link UIType}
-	 * @param uiHandlerSupplier
-	 *            the {@link UIHandler} supplier
-	 */
-	public final void registerUIHandlerIfMissing(
-			UIType uiType,
-			Supplier<UIHandler> uiHandlerSupplier
-	) {
-		Validate.notNull(uiHandlerSupplier, "uiHandlerSupplier is null");
-		if (this.getUIHandler(uiType) == null) {
-			this.registerUIHandler(uiHandlerSupplier.get());
-		}
-	}
-
-	/**
-	 * Gets the {@link UIHandler} for the given {@link UIType}.
-	 * 
-	 * @param uiType
-	 *            the {@link UIType}, not <code>null</code>
-	 * @return the {@link UIHandler}, or <code>null</code> if the UI is not supported
+	 *            the UI type
+	 * @return the UI handler, or <code>null</code> if none is available
 	 */
 	public final @Nullable UIHandler getUIHandler(UIType uiType) {
 		Validate.notNull(uiType, "uiType is null");
@@ -1600,41 +1582,14 @@ public abstract class AbstractShopkeeper implements Shopkeeper {
 		return this.openWindow(DefaultUITypes.EDITOR(), player);
 	}
 
-	@Override
-	public final boolean openTradingWindow(Player player) {
-		return this.openWindow(DefaultUITypes.TRADING(), player);
-	}
-
-	/***
-	 * Checks if the given {@link CommandSender} has access to the editor.
-	 * <p>
-	 * For players, this delegates to {@link UIHandler#canAccess(Player, boolean)} of the configured
-	 * editor {@link UIHandler}. If no editor {@link UIHandler} is found, this returns
-	 * <code>false</code>. For non-player {@link CommandSender}s, this checks the bypass permission.
-	 * 
-	 * @param sender
-	 *            the {@link CommandSender}, not <code>null</code>
-	 * @param silent
-	 *            <code>true</code> to omit any feedback that might otherwise be sent to the sender
-	 * @return <code>true</code> if the sender can edit this shopkeeper
-	 */
+	// Shortcut to check if the sender has access to the editor, taking the bypass permission into
+	// account for non-player CommandSenders.
 	public final boolean canEdit(CommandSender sender, boolean silent) {
 		return this.canAccess(sender, DefaultUITypes.EDITOR(), silent);
 	}
 
-	/***
-	 * Checks if the given {@link CommandSender} has access to the specified {@link UIType}.
-	 * <p>
-	 * For players, this delegates to {@link UIHandler#canAccess(Player, boolean)} of the configured
-	 * {@link UIHandler}. If no {@link UIHandler} is found, this returns <code>false</code>. For
-	 * non-player {@link CommandSender}s, this checks the bypass permission.
-	 * 
-	 * @param sender
-	 *            the {@link CommandSender}, not <code>null</code>
-	 * @param silent
-	 *            <code>true</code> to omit any feedback that might otherwise be sent to the sender
-	 * @return <code>true</code> if the sender can access the UI this shopkeeper
-	 */
+	// Shortcut for checking if the sender has access to the given UI type, taking the bypass
+	// permission into account for non-player CommandSenders.
 	public final boolean canAccess(CommandSender sender, UIType uiType, boolean silent) {
 		var uiHandler = this.getUIHandler(uiType);
 		if (uiHandler == null) return false;
@@ -1647,6 +1602,11 @@ public abstract class AbstractShopkeeper implements Shopkeeper {
 			// command senders):
 			return PermissionUtils.hasPermission(sender, ShopkeepersPlugin.BYPASS_PERMISSION);
 		}
+	}
+
+	@Override
+	public final boolean openTradingWindow(Player player) {
+		return this.openWindow(DefaultUITypes.TRADING(), player);
 	}
 
 	// INTERACTION HANDLING

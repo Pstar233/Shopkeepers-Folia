@@ -47,12 +47,12 @@ public class SKTradingPlayerShopkeeper
 
 	@Override
 	protected void setup() {
-		this.registerUIHandlerIfMissing(DefaultUITypes.EDITOR(), () -> {
-			return new TradingPlayerShopEditorHandler(this);
-		});
-		this.registerUIHandlerIfMissing(DefaultUITypes.TRADING(), () -> {
-			return new TradingPlayerShopTradingHandler(this);
-		});
+		if (this.getUIHandler(DefaultUITypes.EDITOR()) == null) {
+			this.registerUIHandler(new TradingPlayerShopEditorHandler(this));
+		}
+		if (this.getUIHandler(DefaultUITypes.TRADING()) == null) {
+			this.registerUIHandler(new TradingPlayerShopTradingHandler(this));
+		}
 		super.setup();
 	}
 

@@ -233,13 +233,10 @@ public class VillagerSounds extends TradingListener {
 			// We are already about to process another inventory interaction.
 			return;
 		}
-		tradeInteractionTask = Bukkit.getAsyncScheduler().runNow(SKShopkeepersPlugin.getInstance(), task -> {
-					new ProcessTradeInteractionTask(uiSession);
+		Location location = uiSession.getPlayer().getLocation();
+		tradeInteractionTask = Bukkit.getRegionScheduler().run(SKShopkeepersPlugin.getInstance(), location, task -> {
+			new ProcessTradeInteractionTask(uiSession);
 		});
-		//tradeInteractionTask = Bukkit.getScheduler().runTask(
-		//		SKShopkeepersPlugin.getInstance(),
-		//		new ProcessTradeInteractionTask(uiSession)
-		//);
 	}
 
 	private class ProcessTradeInteractionTask implements Runnable {

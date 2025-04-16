@@ -14,7 +14,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import com.nisovin.shopkeepers.util.taskqueue.TaskQueue;
+import io.papermc.paper.threadedregions.scheduler.AsyncScheduler;
+import io.papermc.paper.threadedregions.scheduler.RegionScheduler;
 import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -53,6 +54,7 @@ import com.nisovin.shopkeepers.util.java.ThrowableUtils;
 import com.nisovin.shopkeepers.util.java.Validate;
 import com.nisovin.shopkeepers.util.java.VoidCallable;
 import com.nisovin.shopkeepers.util.logging.Log;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Storage responsible for persisting and loading the data of shopkeepers.
@@ -158,7 +160,7 @@ public class SKShopkeeperStorage implements ShopkeeperStorage {
 	}
 
 	public void onEnable() {
-		// 启动定期保存任务：
+		// Start periodic save task:
 		if (!Settings.saveInstantly) {
 			new PeriodicSaveTask().start();
 		}
@@ -201,11 +203,13 @@ public class SKShopkeeperStorage implements ShopkeeperStorage {
 
 	private class PeriodicSaveTask implements Runnable {
 
-		private static final long PERIOD_TICKS = 6000L; // 5 分钟
+		private static final long PERIOD_TICKS = 6000L; // 5 minutes
 
 		void start() {
-			Bukkit.getGlobalRegionScheduler().runAtFixedRate(plugin, task -> run() , PERIOD_TICKS, PERIOD_TICKS);
-			// Bukkit.getScheduler().runTaskTimer(plugin, this, PERIOD_TICKS, PERIOD_TICKS); 已弃用
+			Bukkit.getGlobalRegionScheduler().runAtFixedRate(plugin, task -> {
+				run();
+			}, PERIOD_TICKS, PERIOD_TICKS);
+
 		}
 
 		@Override
@@ -859,7 +863,6 @@ public class SKShopkeeperStorage implements ShopkeeperStorage {
 			Log.warning("Skipping save, because saving got disabled.");
 			return;
 		}
-
 		if (async) {
 			saveTask.run();
 		} else {

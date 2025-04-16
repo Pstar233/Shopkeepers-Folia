@@ -3,7 +3,6 @@ package com.nisovin.shopkeepers.util.trading;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
-import com.nisovin.shopkeepers.commands.arguments.TargetShopkeeperArgument;
 import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import org.bukkit.Bukkit;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -18,13 +17,13 @@ import com.nisovin.shopkeepers.util.bukkit.Ticks;
 import com.nisovin.shopkeepers.util.java.Validate;
 
 /**
- * Merges sequentially triggered shopkeeper trades that involve the same player, shopkeeper, and
- * items.
+ * 合并顺序触发的店主交易，这些交易涉及同一玩家、店主和
+ *项目。
  * <p>
- * Once a trade is encountered that cannot be merged with the previous trades, or once a certain
- * maximum duration has passed, or the {@link TradeMerger} is {@link #onDisable() disabled}, an
- * initially provided {@link Consumer} is informed about the merged trades so that they can be
- * further processed.
+ * 一旦遇到无法与之前交易合并的交易，或一旦确定
+ * 最长持续时间已过，或者 {@link TradeMerger} 已禁用 {@link #onDisable（） }，则
+ * 最初提供 {@link Consumer} 被告知合并的交易，以便他们可以
+ * 进一步处理。
  */
 public class TradeMerger {
 
@@ -217,12 +216,9 @@ public class TradeMerger {
 		this.endMergeDurationTask();
 
 		// 启动一个新的延迟任务，在一定的最大持续时间后结束交易合并：
-		mergeDurationTask = Bukkit.getGlobalRegionScheduler().runDelayed(plugin, task -> new MaxMergeDurationTimeoutTask(),mergeDurationTicks);
-		//mergeDurationTask = Bukkit.getScheduler().runTaskLater(
-		//		plugin,
-		//		new MaxMergeDurationTimeoutTask(),
-		//		mergeDurationTicks
-		//);
+		mergeDurationTask = Bukkit.getGlobalRegionScheduler().runDelayed(plugin, task -> {
+			new MaxMergeDurationTimeoutTask();
+		}, mergeDurationTicks);
 	}
 
 	private class MaxMergeDurationTimeoutTask implements Runnable {
@@ -277,14 +273,7 @@ public class TradeMerger {
 		nextMergeTimeoutStartNanos = lastMergedTradeNanos;
 		nextMergeTimeoutTask = Bukkit.getGlobalRegionScheduler().runDelayed(plugin, task -> {
 			new NextMergeTimeoutTask();
-		},taskDelayTicks);
-
-		// 弃用
-		//nextMergeTimeoutTask = Bukkit.getScheduler().runTaskLater(
-		//		plugin,
-		//		new NextMergeTimeoutTask(),
-		//		taskDelayTicks
-		//);
+		}, taskDelayTicks);
 	}
 
 	private class NextMergeTimeoutTask implements Runnable {

@@ -2,10 +2,10 @@ package com.nisovin.shopkeepers.commands;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ProxiedCommandSender;
 import org.bukkit.entity.Player;
@@ -87,35 +87,28 @@ public class Confirmations {
 		Validate.notNull(action, "action is null");
 		Validate.isTrue(timeoutTicks > 0, "timeoutTicks has to be positive");
 
-		ScheduledTask taskId = Bukkit.getAsyncScheduler().runDelayed(plugin, task -> {
+		ScheduledTask taskId = Bukkit.getGlobalRegionScheduler().runDelayed(plugin, task -> {
 			this.endConfirmation(sender);
 			TextUtils.sendMessage(sender, Messages.confirmationExpired);
-		}, timeoutTicks * 50 , TimeUnit.MILLISECONDS);
-
-		//int taskId = Bukkit.getScheduler().runTaskLater(plugin, () -> {
-		//	this.endConfirmation(sender);
-		//	TextUtils.sendMessage(sender, Messages.confirmationExpired);
-		//}, timeoutTicks).getTaskId();
+		}, timeoutTicks);
 
 		PendingConfirmation previousPendingConfirmation = pendingConfirmations.put(
 				this.getSenderKey(sender),
 				new PendingConfirmation(action, taskId)
 		);
 		if (previousPendingConfirmation != null) {
-			// 取消上一个待确认任务：
+			// 取消上一个待处理的确认任务:
 			previousPendingConfirmation.getTaskId().cancel();
-			//Bukkit.getScheduler().cancelTask(previousPendingConfirmation.getTaskId());
 		}
 	}
 
-	// Returns the action that was awaiting confirmation.
+	// 返回等待确认的作。
 	public @Nullable Runnable endConfirmation(CommandSender sender) {
 		Validate.notNull(sender, "sender is null");
 		PendingConfirmation pendingConfirmation = pendingConfirmations.remove(this.getSenderKey(sender));
 		if (pendingConfirmation != null) {
-			// 结束确认任务
+			// 结束确认任务:
 			pendingConfirmation.getTaskId().cancel();
-			//Bukkit.getScheduler().cancelTask(pendingConfirmation.getTaskId());
 
 			// Return action:
 			return pendingConfirmation.getAction();

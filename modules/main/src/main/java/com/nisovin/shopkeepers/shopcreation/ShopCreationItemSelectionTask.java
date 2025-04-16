@@ -2,11 +2,12 @@ package com.nisovin.shopkeepers.shopcreation;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 
 import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitTask;
@@ -17,12 +18,12 @@ import com.nisovin.shopkeepers.util.bukkit.TextUtils;
 
 class ShopCreationItemSelectionTask implements Runnable {
 
-	/**
-	 * The time in ticks before we send the shop creation item selection message.
+    /**
+	 * 我们发送商店创建项目选择消息之前的时间（以刻度为单位）。
 	 * <p>
-	 * We only send the message if the player is still holding the item after this delay. This
-	 * avoids message spam when the player quickly scrolls through the items on the hotbar via the
-	 * mouse wheel.
+	 * 只有在此延迟后玩家仍持有物品时，我们才会发送消息。这
+	 * 避免了玩家通过
+	 * 鼠标滚轮。
 	 */
 	private static final long DELAY_TICKS = 5L; // 0.25 seconds
 
@@ -95,8 +96,8 @@ class ShopCreationItemSelectionTask implements Runnable {
 	private void start() {
 		// Cancel previous task if already active:
 		this.cancel();
-		bukkitTask = Bukkit.getAsyncScheduler().runDelayed(plugin, task ->  this.run(), DELAY_TICKS, TimeUnit.MILLISECONDS);
-		//bukkitTask = Bukkit.getScheduler().runTaskLater(plugin, this, DELAY_TICKS);
+		Location location = player.getLocation();
+		bukkitTask = Bukkit.getRegionScheduler().runDelayed(plugin, location, task -> run(), DELAY_TICKS);
 	}
 
 	// Note: Performs no cleanup.

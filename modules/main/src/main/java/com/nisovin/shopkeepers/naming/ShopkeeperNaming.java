@@ -105,7 +105,7 @@ public class ShopkeeperNaming {
 		// Close all open windows:
 		shopkeeper.abortUISessionsDelayed(); // TODO Really needed?
 
-		// Call event:
+		// 呼叫事件：
 		Bukkit.getPluginManager().callEvent(new ShopkeeperEditedEvent(shopkeeper, player));
 
 		// Save:

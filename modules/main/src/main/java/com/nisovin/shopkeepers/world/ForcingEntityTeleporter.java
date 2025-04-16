@@ -2,7 +2,6 @@ package com.nisovin.shopkeepers.world;
 
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionException;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -74,11 +73,9 @@ public class ForcingEntityTeleporter implements Listener {
 	/**
 	 * Teleports the given entity to the given location, trying to bypass any plugins that cancel or
 	 * modify any corresponding {@link EntityTeleportEvent}.
-	 * 
-	 * @param entity
-	 *            the entity to teleport
-	 * @param toLocation
-	 *            the destination location
+	 *
+	 * @param entity     the entity to teleport
+	 * @param toLocation the destination location
 	 * @return the result of the teleport
 	 */
 	public @NotNull CompletableFuture<Boolean> teleport(Entity entity, Location toLocation) {

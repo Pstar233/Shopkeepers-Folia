@@ -76,7 +76,6 @@ public class TradingCountListener implements Listener {
 				+ " ...");
 		this.tradingPlayer = tradingPlayer;
 		stopListeningTask = Bukkit.getGlobalRegionScheduler().run(plugin, task ->  stopListeningAction.run());
-		//stopListeningTask = Bukkit.getScheduler().runTask(plugin, stopListeningAction);
 	}
 
 	private void stopListeningForTrades() {

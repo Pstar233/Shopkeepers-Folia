@@ -25,7 +25,7 @@ import com.nisovin.shopkeepers.util.data.serialization.InvalidDataException;
 import com.nisovin.shopkeepers.util.data.serialization.java.BooleanSerializers;
 import com.nisovin.shopkeepers.util.inventory.ItemUtils;
 
-public class ChestedHorseShop<E extends ChestedHorse> extends AbstractHorseShop<E> {
+public class ChestedHorseShop<E extends ChestedHorse> extends BabyableShop<E> {
 
 	public static final Property<Boolean> CARRYING_CHEST = new BasicProperty<Boolean>()
 			.dataKeyAccessor("carryingChest", BooleanSerializers.LENIENT)
