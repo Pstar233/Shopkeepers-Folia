@@ -4,3 +4,10 @@ apply plugin: 'io.papermc.paperweight.userdev'
 dependencies {
     paperweight.paperDevBundle("1.20.6-R0.1-SNAPSHOT")
 }
+tasks.withType(Javadoc).configureEach {
+    options.encoding = 'UTF-8'
+    options.addStringOption('Xdoclint:none', '-quiet') // 可选：禁用 doclint 警告
+    if (JavaVersion.current().isJava9Compatible()) {
+        options.addBooleanOption('html5', true)
+    }
+}

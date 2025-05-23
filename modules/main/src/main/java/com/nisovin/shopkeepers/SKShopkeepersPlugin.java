@@ -26,7 +26,6 @@ import com.nisovin.shopkeepers.commands.Commands;
 import com.nisovin.shopkeepers.compat.MC_1_21_3;
 import com.nisovin.shopkeepers.compat.MC_1_21_4;
 import com.nisovin.shopkeepers.compat.NMSManager;
-import com.nisovin.shopkeepers.compat.ServerAssumptionsTest;
 import com.nisovin.shopkeepers.config.Settings;
 import com.nisovin.shopkeepers.config.lib.ConfigLoadException;
 import com.nisovin.shopkeepers.container.protection.ProtectedContainers;
@@ -282,8 +281,8 @@ public class SKShopkeepersPlugin extends JavaPlugin implements InternalShopkeepe
 
 		// Validate that this server is running a minimum required version:
 		if (this.outdatedServer) {
-			Log.severe("Outdated server version (" + Bukkit.getVersion()
-					+ "): Shopkeepers cannot be enabled. Please update your server!");
+			Log.severe("过时的服务器版本 (" + Bukkit.getVersion()
+					+ "): 无法启用 Shopkeepers。请更新您的服务器！");
 			this.setEnabled(false); // also calls onDisable
 			return;
 		}
@@ -326,18 +325,6 @@ public class SKShopkeepersPlugin extends JavaPlugin implements InternalShopkeepe
 			Log.info("No Spigot-based server found: Disabling Spigot exclusive features!");
 		}
 
-		// Test server assumptions:
-		if (!ServerAssumptionsTest.run()) {
-			if (Settings.ignoreFailedServerAssumptionTests) {
-				Log.severe("Server incompatibility detected! But we continue to enable the plugin "
-						+ "anyway, because setting 'ignore-failed-server-assumption-tests' is "
-						+ "enabled. Runnning the plugin in this mode is unsupported!");
-			} else {
-				Log.severe("Server incompatibility detected! Disabling the plugin!");
-				this.setEnabled(false); // Also calls onDisable
-				return;
-			}
-		}
 
 		// Register defaults (if not already set up during onLoad):
 		if (!alreadySetUp) {

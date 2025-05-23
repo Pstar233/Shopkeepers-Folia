@@ -1025,8 +1025,8 @@ public class SKLivingShopObject<E extends LivingEntity>
 
 			@Override
 			protected void onActionSuccess(EditorSession editorSession, InventoryClickEvent clickEvent) {
-				// The button only opens the equipment editor: Skip the ShopkeeperEditedEvent and
-				// saving.
+				//该按钮仅打开设备编辑器：跳过 ShopkeeperEditedEvent 和
+				//储蓄。
 			}
 		};
 	}

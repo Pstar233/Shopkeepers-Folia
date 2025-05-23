@@ -9,6 +9,13 @@ plugins {
 	id 'org.sonarqube' version '5.0.0.4638'
 	id 'io.papermc.paperweight.userdev' version '1.7.1' apply false
 }
+tasks.withType(Javadoc).configureEach {
+	options.encoding = 'UTF-8'
+	options.addStringOption('Xdoclint:none', '-quiet') // 可选：禁用 doclint 警告
+	if (JavaVersion.current().isJava9Compatible()) {
+		options.addBooleanOption('html5', true)
+	}
+}
 
 sonar {
 	properties {
