@@ -893,9 +893,9 @@ public class TradingHandler extends AbstractShopkeeperUIHandler {
 	}
 
 	private void commonApplyTrade(Trade trade) {
-		// Update merchant inventory contents:
+		// 更新商户库存内容：
 		MerchantInventory merchantInventory = trade.getMerchantInventory();
-		merchantInventory.setItem(RESULT_ITEM_SLOT_ID, null); // Clear result slot, just in case
+		merchantInventory.setItem(RESULT_ITEM_SLOT_ID, null); // 除结果槽，以防万一
 
 		TradingRecipe tradingRecipe = trade.getTradingRecipe();
 		ItemStack newOfferedItem1 = ItemUtils.decreaseItemAmount(
@@ -906,8 +906,8 @@ public class TradingHandler extends AbstractShopkeeperUIHandler {
 				trade.getOfferedItem2(),
 				ItemUtils.getItemStackAmount(tradingRecipe.getItem2())
 		);
-		// Inform the merchant inventory about the change (updates the active trading recipe and
-		// result item):
+		// 将更改通知商户库存（更新活跃交易配方和
+		// 结果项）：
 		boolean itemOrderSwapped = trade.isItemOrderSwapped();
 		merchantInventory.setItem(
 				itemOrderSwapped ? BUY_ITEM_2_SLOT_ID : BUY_ITEM_1_SLOT_ID, newOfferedItem1
@@ -934,7 +934,7 @@ public class TradingHandler extends AbstractShopkeeperUIHandler {
 		ShopkeeperTradeEvent tradeEvent = trade.getTradeEvent();
 		tradeEvent.getTradeEffects().forEach(tradeEffect -> tradeEffect.onTradeApplied(tradeEvent));
 
-		// Call trade completed event:
+		// Call trade completed 事件：
 		ShopkeeperTradeCompletedEvent tradeCompletedEvent = new ShopkeeperTradeCompletedEvent(tradeEvent);
 		Bukkit.getPluginManager().callEvent(tradeCompletedEvent);
 

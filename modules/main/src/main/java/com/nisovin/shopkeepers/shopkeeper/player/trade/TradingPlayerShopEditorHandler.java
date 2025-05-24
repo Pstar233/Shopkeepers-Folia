@@ -190,16 +190,16 @@ public class TradingPlayerShopEditorHandler extends PlayerShopEditorHandler {
 	private void placeCursorInTrades(InventoryView view, int rawSlot, ItemStack cursorClone) {
 		assert !ItemUtils.isEmpty(cursorClone);
 		cursorClone.setAmount(1);
-		// Replace placeholder item, if this is one:
+		// 替换占位符项（如果这是其中之一）：
 		ItemStack cursorFinal = PlaceholderItems.replace(cursorClone);
-		Location location = view.getPlayer().getBedLocation();
+		Location location = view.getPlayer().getLocation();
 		Bukkit.getRegionScheduler().run(ShopkeepersPlugin.getInstance(), location, task -> {
 			if (view.getPlayer().getOpenInventory() != view) return;
 
 			Inventory inventory = view.getTopInventory();
 			inventory.setItem(rawSlot, cursorFinal); // This copies the item internally
 
-			// Update the trade column (replaces empty slot placeholder items if necessary):
+			// 更新 trade 列（如有必要，替换空插槽占位符项）：
 			this.updateTradeColumn(inventory, this.getTradeColumn(rawSlot));
 		});
 	}

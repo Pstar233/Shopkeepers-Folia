@@ -19,9 +19,9 @@ import com.nisovin.shopkeepers.util.java.Validate;
  */
 public class TranslatableText extends TextBuilder {
 
-	private final String translationKey; // Not null or empty
-	// Only contains already built Texts.
-	// Not null, can be empty, unmodifiable view.
+	private final String translationKey; // 不为空或空
+	// 仅包含已构建的文本。
+	// 不为 null，可以是空的、不可修改的 view。
 	private List<? extends Text> translationArguments = Collections.emptyList();
 
 	TranslatableText(String translationKey) {

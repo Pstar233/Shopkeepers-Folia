@@ -499,18 +499,22 @@ public final class TextUtils {
 	}
 
 	/**
-	 * Formats the {@link Material} name of the given {@link ItemStack} to a more user-friendly
-	 * representation.
+	 * 将给定 {@link ItemStack} 的 {@link Material} 名称格式化为更用户友好的
+	 *表示法。
 	 * <p>
-	 * If the given item stack is <code>null</code>, this returns an empty Text.
-	 * 
+	 * 如果给定的项目堆栈为 <code>null</code>，则返回空 Text。
+	 *
 	 * @param itemStack
-	 *            the item stack, can be <code>null</code>
-	 * @return the formatted material name, not <code>null</code>
-	 * @see #getMaterialNameForDisplay(Material)
+	 * 物品堆栈，可以为 <code>null</code>
+	 * @return格式化的材质名称，而不是 <code>null</code>
+	 * @see #getMaterialNameForDisplay（材料）
 	 */
 	public static Text getMaterialNameForDisplay(@Nullable ItemStack itemStack) {
-		return getMaterialNameForDisplay(itemStack != null ? itemStack.getType() : null);
+		if (itemStack == null) {
+			// 例如返回一个显示为“无物品”的 Text
+			return Text.of("无物品");
+		}
+		return getMaterialNameForDisplay(itemStack.getType());
 	}
 
 	// SENDING
