@@ -124,14 +124,13 @@ public abstract class AbstractShopObjectType<T extends AbstractShopObject>
 	}
 
 	/**
-	 * Creates a shop object of this type.
-	 * 
-	 * @param shopkeeper
-	 *            the shopkeeper, not <code>null</code>
+	 * 创建此类型的商店对象。
+	 *
+	 * 掌柜，非<code>空</code>
 	 * @param creationData
-	 *            the used shop creation data, can be <code>null</code> (e.g. if the shopkeeper gets
-	 *            loaded)
-	 * @return the shop object
+	 * used shop creation data 可以为 <code>null</code>（例如，如果 Shopkeeper 获得
+	 * 已加载）
+	 * @return shop 对象
 	 */
 	public abstract @NonNull T createObject(
 			AbstractShopkeeper shopkeeper,

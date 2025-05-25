@@ -42,27 +42,27 @@ import com.nisovin.shopkeepers.util.java.Validate;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Abstract base class for all shop object implementations.
+ * 所有 shop 对象实现的抽象基类。
  * <p>
- * Make sure to call {@link AbstractShopkeeper#markDirty()} on every change of data that might need
- * to be persisted.
+ * 确保在每次可能需要的数据更改时调用 {@link AbstractShopkeeper#markDirty（）}
+ * 进行持久化。
  * <p>
- * The shop object needs to {@link #onIdChanged() register} itself whenever it is spawned,
- * despawned, or its object id might have changed. If this type of shop object manages its
- * {@link AbstractShopObjectType#mustBeSpawned() spawning} itself, it might need to register itself
- * earlier than shop objects whose spawning is managed by the Shopkeepers plugin: For instance, if
- * the shop object is already spawned during or shortly after chunk loads, it needs to be registered
- * in this exact moment, rather than when the shopkeeper's chunk is activated. And if the shop
- * object is able to spawn before the shopkeeper has been created or loaded, it may need to register
- * itself during {@link #onShopkeeperAdded(ShopkeeperAddedEvent.Cause)}.
+ * shop 对象在生成时需要 {@link #onIdChanged（） register} 自身，
+ * despawned，或者其对象 ID 可能已更改。如果此类型的 shop 对象管理其
+ * {@link AbstractShopObjectType#mustBeSpawned（） spawning} 自身，它可能需要注册自身
+ * 早于由 Shopkeepers 插件管理的 shop 对象：例如，如果
+ * 商店对象已在数据块加载期间或之后不久生成，因此需要注册
+ * 此时，而不是当店主的区块被激活时。如果商店
+ * 对象能够在创建或加载店主之前生成，则可能需要注册
+ * @link #onShopkeeperAdded本身。
  * <p>
- * If this type of shop object is able to move, teleport, or be spawned into a different chunk, the
- * {@link ShopkeeperRegistry} needs to be made aware of these location changes by
- * {@link AbstractShopkeeper#setLocation(Location) updating the location} of the corresponding
- * shopkeeper. If the shopkeeper is not ticking currently (i.e. if its previous chunk is not active
- * currently), these location updates need to happen quickly, so that the chunk of the shopkeeper's
- * new location, if currently loaded, can be activated and start the shopkeeper's ticking as quickly
- * as possible.
+ * 如果这种类型的商店对象能够移动、传送或生成到不同的区块中，则
+ * {@link ShopkeeperRegistry} 需要通过以下方式了解这些位置更改
+ * {@link AbstractShopkeeper#setLocation（Location） 更新对应
+ *店主。如果店主当前没有 tick （即如果其上一个区块未激活）
+ * 目前），这些位置更新需要快速进行，以便 shopkeeper 的
+ * 新位置，如果当前已加载，则可以激活并尽快开始店主的滴答作响
+ * 尽可能。
  */
 public abstract class AbstractShopObject implements ShopObject {
 
@@ -312,28 +312,28 @@ public abstract class AbstractShopObject implements ShopObject {
 	}
 
 	/**
-	 * Gets an object that uniquely identifies this {@link ShopObject} while it is
-	 * {@link #isSpawned() spawned}.
+	 * 获取唯一标识此 {@link ShopObject} 的对象，而该对象是
+	 * {@link #isSpawned（） 生成}。
 	 * <p>
-	 * The id has to be unique among all currently spawned shop objects, including other types of
-	 * shop objects. It has to be suitable to be used as key in {@link Object#hashCode() hash-based}
-	 * data structures, and not change while the shop object is spawned. The id may change whenever
-	 * the shop object is respawned.
-	 * 
-	 * @return the id of the shop object, or <code>null</code> if it is not spawned currently
+	 * 该 ID 在所有当前生成的商店对象中必须是唯一的，包括其他类型的
+	 * 商店物品。它必须适合用作 {@link Object#hashCode（） hash-based} 中的键
+	 * 数据结构，并且在生成 Shop 对象时不会更改。ID 可能会随时更改
+	 * 重新生成 Shop 对象。
+	 *
+	 * @return shop 对象的 id，如果当前未生成，则<code>为 null</code>
 	 */
 	public abstract @Nullable Object getId();
 
 	/**
-	 * This has to be invoked whenever the {@link #getId() id} of this shop object might have
-	 * changed, such as when this shop object has been {@link #spawn() spawned}, {@link #despawn()
-	 * despawned}, or has changed its id for some other reason.
+	 * 只要此 shop 对象的 {@link #getId（） id} 可能具有
+	 * 已更改，例如当此商店对象已生成 {@link #spawn（） 时}、{@link #despawn（）
+	 * despawned} 来命名，或者由于其他原因更改了其 ID。
 	 * <p>
-	 * This updates the shop object id by which the shopkeeper is currently registered inside the
-	 * {@link ShopkeeperRegistry}: If the shop object has been freshly spawned, this will register
-	 * the current shop object id. If the shop object has been despawned, this will unregister any
-	 * previously registered object id. If the shop object id has changed, this will both unregister
-	 * any previous object id and then register the current object id.
+	 * 这将更新店主当前在
+	 * {@link ShopkeeperRegistry}：如果 shop 对象是新生成的，这将进行注册
+	 * 当前商店对象 ID。如果 shop 对象已消失，这将取消注册任何
+	 * 以前注册的对象 ID。如果商店对象 ID 已更改，则两者都将取消注册
+	 * 任何以前的对象 ID，然后注册当前对象 ID。
 	 */
 	protected final void onIdChanged() {
 		ShopObjectRegistry shopObjectRegistry = SKShopkeepersPlugin.getInstance()

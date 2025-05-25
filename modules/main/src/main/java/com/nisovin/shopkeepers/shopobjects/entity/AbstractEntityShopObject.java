@@ -51,7 +51,7 @@ public abstract class AbstractEntityShopObject
 	@Override
 	public @Nullable Object getId() {
 		Entity entity = this.getEntity();
-		if (entity == null) return null; // Not spawned
+		if (entity == null) return null; // 未生成
 		return EntityShopObjectIds.getObjectId(entity);
 	}
 

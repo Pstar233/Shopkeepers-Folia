@@ -2,6 +2,8 @@ package com.nisovin.shopkeepers.shopkeeper.player;
 
 import java.util.List;
 
+import com.nisovin.shopkeepers.SKShopkeepersPlugin;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
@@ -90,14 +92,17 @@ public abstract class PlayerShopEditorHandler extends EditorHandler {
 					EditorSession editorSession,
 					InventoryClickEvent clickEvent
 			) {
-				// Closing the UI also triggers a save of the current editor state:
+				// 关闭 UI 还会触发当前编辑器状态的保存：
 				editorSession.getUISession().closeDelayedAndRunTask(() -> {
 					// Open the shop container inventory:
 					Player player = editorSession.getPlayer();
 					PlayerShopkeeper shopkeeper = getShopkeeper();
 					if (!player.isValid() || !shopkeeper.isValid()) return;
 
-					shopkeeper.openContainerWindow(player);
+					System.out.println("触发 runAction |");
+					Bukkit.getRegionScheduler().execute(SKShopkeepersPlugin.getInstance(), shopkeeper.getLocation(), ()->{
+						shopkeeper.openContainerWindow(player);
+					});
 				});
 				return true;
 			}

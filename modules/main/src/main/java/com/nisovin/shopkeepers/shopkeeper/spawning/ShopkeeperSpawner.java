@@ -297,8 +297,7 @@ public class ShopkeeperSpawner {
 		}
 
 		if (spawnImmediately) {
-			// This also updates the shopkeeper's spawn state if necessary (remove from spawn queue,
-			// etc.):
+			// 如有必要，这也会更新店主的生成状态（从生成队列中删除，等）：
 			if (this.doSpawnShopkeeper(shopkeeper)) {
 				return SpawnResult.SPAWNED;
 			} else {
@@ -370,14 +369,14 @@ public class ShopkeeperSpawner {
 		this.spawnShopkeeper(shopkeeper, true);
 	}
 
-	// Returns true on success.
+	// 成功时返回 true。
 	private boolean doSpawnShopkeeper(AbstractShopkeeper shopkeeper) {
 		assert shopkeeper != null;
 		AbstractShopObject shopObject = shopkeeper.getShopObject();
 		AbstractShopObjectType<?> shopObjectType = shopObject.getType();
 		assert shopObjectType.mustBeSpawned();
 
-		// Reset the shopkeeper's spawn state:
+		// 重置店主的生成状态：
 		this.updateSpawnState(shopkeeper, State.DESPAWNED);
 
 		// TODO Handle dynamic disabling of shop object types by despawning the corresponding shop
@@ -389,27 +388,29 @@ public class ShopkeeperSpawner {
 			return false;
 		}
 
-		// Set the new spawn state:
+		// 设置新的生成状态：
 		ShopkeeperSpawnState spawnState = shopkeeper.getComponents().getOrAdd(ShopkeeperSpawnState.class);
 		spawnState.setState(State.SPAWNED);
 
 		boolean spawned = false;
 		try {
-			// This is expected to also register the spawned shop object:
-			// This has no effect if the shopkeeper is already spawned.
+			// 这预计还会注册生成的 shop 对象：
+			// 如果店主已经生成，则这不起作用。
 			spawned = shopObject.spawn();
 		} catch (Throwable e) {
 			Log.severe(shopkeeper.getLogPrefix() + "Error during spawning!", e);
 		}
 		if (spawned) {
-			// Validation:
+			// 验证
+			Object ctId = shopObject.getLastId();
 			Object objectId = shopObject.getId();
+
 			if (objectId == null) {
 				Log.warning(shopkeeper.getLogPrefix()
-						+ "Successfully spawned, but provides no object id!");
+						+ "Successfully spawned, but provides no object id!");//没有提供对象 ID！
 			} else if (!objectId.equals(shopObject.getLastId())) {
 				Log.warning(shopkeeper.getLogPrefix()
-						+ "Successfully spawned, but object not registered!");
+						+ "Successfully spawned, but object not registered!");//对象未注册！
 			}
 			return true;
 		} else {

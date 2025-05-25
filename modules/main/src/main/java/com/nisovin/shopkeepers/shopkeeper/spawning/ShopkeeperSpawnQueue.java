@@ -22,7 +22,7 @@ import com.nisovin.shopkeepers.util.taskqueue.TaskQueue;
  * 在几个刻内生成店主。
  * <p>
  * 店主可能在等待生成时已被勾选。商店物品可以
- * 使用 {@link AbstractShopObject#isSpawningScheduled（）} 来检查它们当前是否仍处于待处理状态
+ * 使用 {@link AbstractShopObject# isSpawningScheduled（）} 来检查它们当前是否仍处于待处理状态
  * 来生成。
  */
 public class ShopkeeperSpawnQueue extends TaskQueue<AbstractShopkeeper> {
@@ -38,7 +38,7 @@ public class ShopkeeperSpawnQueue extends TaskQueue<AbstractShopkeeper> {
 
 	ShopkeeperSpawnQueue(Plugin plugin, Consumer<? super AbstractShopkeeper> spawner) {
 		super(plugin, SPAWN_TASK_PERIOD_TICKS, SPAWNS_PER_EXECUTION);
-		Validate.notNull(spawner, "spawner is null");
+		Validate.notNull(spawner, "生成器为空");
 		this.spawner = spawner;
 	}
 

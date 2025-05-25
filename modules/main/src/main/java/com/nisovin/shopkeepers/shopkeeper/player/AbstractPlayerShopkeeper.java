@@ -624,7 +624,7 @@ public abstract class AbstractPlayerShopkeeper
 		return container.getBlock();
 	}
 
-	// Returns null if the container could not be found.
+	// 如果找不到容器，则返回 null。
 	public @Nullable Inventory getContainerInventory() {
 		Block container = this.getContainer();
 		if (container != null && ShopContainers.isSupportedContainer(container.getType())) {
@@ -754,7 +754,7 @@ public abstract class AbstractPlayerShopkeeper
 
 	@Override
 	public boolean openContainerWindow(Player player) {
-		// Check if the container still exists:
+		// 检查容器是否仍然存在：
 		Inventory containerInventory = this.getContainerInventory();
 		if (containerInventory == null) {
 			Log.debug(() -> "Cannot open container inventory for player '" + player.getName()

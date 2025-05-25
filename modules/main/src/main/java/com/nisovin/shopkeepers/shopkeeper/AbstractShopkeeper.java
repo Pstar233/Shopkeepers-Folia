@@ -139,9 +139,9 @@ public abstract class AbstractShopkeeper implements Shopkeeper {
 
 	private boolean initialized = false;
 
-	private int id; // Valid and constant after initialization
+	private int id; // 初始化后有效且恒定
 	private UUID uniqueId = Unsafe.uncheckedNull(); // Not null and constant after initialization
-	private AbstractShopObject shopObject = Unsafe.uncheckedNull(); // Not null after initialization
+	private AbstractShopObject shopObject = Unsafe.uncheckedNull(); // 初始化后不为空
 	// TODO Move location information into ShopObject?
 	// Immutable instances, null for virtual shops, always has a world name:
 	private @Nullable BlockLocation location;
@@ -246,15 +246,14 @@ public abstract class AbstractShopkeeper implements Shopkeeper {
 	}
 
 	/**
-	 * Initializes this shopkeeper based on the given {@link ShopCreationData}.
-	 * 
-	 * @param id
-	 *            the shopkeeper id
+	 * 根据给定的 {@link ShopCreationData} 初始化此店主。
+	 *
+	 * 店主 ID
 	 * @param shopCreationData
-	 *            the shop creation data, not <code>null</code>
+	 * 店铺创建数据，不<code>为空</code>
 	 * @throws ShopkeeperCreateException
-	 *             if the shopkeeper cannot be properly initialized
-	 * @see AbstractShopType#createShopkeeper(int, ShopCreationData)
+	 * 如果 Shopkeeper 无法正确初始化
+	 * @see AbstractShopType# createShopkeeper（int， ShopCreationData）
 	 */
 	protected void loadFromCreationData(int id, ShopCreationData shopCreationData)
 			throws ShopkeeperCreateException {
@@ -290,10 +289,7 @@ public abstract class AbstractShopkeeper implements Shopkeeper {
 		}
 		this.updateChunkCoords();
 
-		this.shopObject = this.createShopObject(
-				(AbstractShopObjectType<?>) shopObjectType,
-				shopCreationData
-		);
+		this.shopObject = this.createShopObject((AbstractShopObjectType<?>) shopObjectType, shopCreationData);
 
 		// Automatically mark new shopkeepers as dirty:
 		this.markDirty();
@@ -415,7 +411,14 @@ public abstract class AbstractShopkeeper implements Shopkeeper {
 		return shopType;
 	}
 
-	// shopCreationData can be null if the shopkeeper is getting loaded.
+	// 如果店主正在加载，则 shopCreationData 可以为 null。
+
+	/**
+	 * 创建商店对象
+	 * @param objectType
+	 * @param shopCreationData
+	 * @return
+	 */
 	private AbstractShopObject createShopObject(
 			AbstractShopObjectType<?> objectType,
 			@Nullable ShopCreationData shopCreationData
