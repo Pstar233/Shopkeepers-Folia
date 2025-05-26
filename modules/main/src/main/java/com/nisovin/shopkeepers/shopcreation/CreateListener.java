@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
-
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
@@ -50,7 +49,7 @@ import com.nisovin.shopkeepers.util.java.MutableLong;
 import com.nisovin.shopkeepers.util.logging.Log;
 
 /**
- * 处理商店创建项目的使用。
+ * Handles the usage of the shop creation item.
  */
 class CreateListener implements Listener {
 
@@ -357,7 +356,7 @@ class CreateListener implements Listener {
 		Player player = event.getPlayer();
 		// We check the permission first since this check is fast:
 		if (PermissionUtils.hasPermission(player, ShopkeepersPlugin.BYPASS_PERMISSION)) return;
-		ItemStack itemInHand = InventoryUtils.getItem(player.getInventory(), event.getHand());
+		ItemStack itemInHand = player.getInventory().getItem(event.getHand());
 		if (!ShopCreationItem.isShopCreationItem(itemInHand)) return;
 
 		// Prevent the entity interaction:

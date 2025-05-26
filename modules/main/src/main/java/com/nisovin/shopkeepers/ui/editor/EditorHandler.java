@@ -1,7 +1,6 @@
 package com.nisovin.shopkeepers.ui.editor;
 
 import java.util.List;
-
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -118,7 +117,7 @@ public abstract class EditorHandler extends AbstractEditorHandler implements Sho
 				UIState capturedUIState = captureState(editorSession.getUISession());
 				editorSession.getUISession().closeDelayedAndRunTask(() -> {
 					requestConfirmationDeleteShop(editorSession.getPlayer(), capturedUIState);
-				});
+				}, editorSession.getPlayer().getLocation());
 				return true;
 			}
 		};
@@ -139,7 +138,7 @@ public abstract class EditorHandler extends AbstractEditorHandler implements Sho
 					shopkeeper,
 					player
 			);
-			Bukkit.getPluginManager().callEvent(deleteEvent);
+			Bukkit.getServer().getPluginManager().callEvent(deleteEvent);
 			if (!deleteEvent.isCancelled()) {
 				// Delete the shopkeeper and save:
 				shopkeeper.delete(player);
@@ -257,7 +256,7 @@ public abstract class EditorHandler extends AbstractEditorHandler implements Sho
 			Log.debug(() -> shopkeeper.getLogPrefix() + changedOffers + " offers have changed.");
 
 			// Call event:
-			Bukkit.getPluginManager().callEvent(new ShopkeeperEditedEvent(shopkeeper, player));
+			Bukkit.getServer().getPluginManager().callEvent(new ShopkeeperEditedEvent(shopkeeper, player));
 
 			// TODO Close all other UI sessions for the shopkeeper (e.g. trading players)? Also send
 			// a message to them.

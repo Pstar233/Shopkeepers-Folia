@@ -94,16 +94,16 @@ public class SlimeShop extends SKLivingShopObject<Slime> {
 	}
 
 	public void setSize(int size) {
-		int trimmedSize = this.trimSize(size);
-		if (trimmedSize != size) {
-			Log.warning(shopkeeper.getLogPrefix() + "Slime size trimmed to valid bounds: "
-					+ size + " -> " + trimmedSize);
+		int clampedSize = this.clampSize(size);
+		if (clampedSize != size) {
+			Log.warning(shopkeeper.getLogPrefix() + "Slime size clamped to valid bounds: "
+					+ size + " -> " + clampedSize);
 		}
-		sizeProperty.setValue(trimmedSize);
+		sizeProperty.setValue(clampedSize);
 	}
 
-	private int trimSize(int size) {
-		return MathUtils.trim(size, MIN_SIZE, Settings.slimeMaxSize);
+	private int clampSize(int size) {
+		return MathUtils.clamp(size, MIN_SIZE, Settings.slimeMaxSize);
 	}
 
 	public void cycleSize(boolean backwards) {

@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.function.Predicate;
-
 import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
@@ -17,7 +16,6 @@ import org.bukkit.Server;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
-import org.bukkit.scheduler.BukkitTask;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.nisovin.shopkeepers.SKShopkeepersPlugin;
@@ -36,9 +34,9 @@ import com.nisovin.shopkeepers.util.timer.Timer;
 import com.nisovin.shopkeepers.util.timer.Timings;
 
 /**
- * 更新并跟踪包含店主的区块的区块激活。
+ * Updates and keeps track of chunk activations for chunks that contain shopkeepers.
  * <p>
- * 区块激活会触发其他各种方面，例如店主的滴答声和生成。
+ * Chunk activations trigger various other aspects, such as the ticking and spawning of shopkeepers.
  */
 public class ShopkeeperChunkActivator {
 
@@ -293,7 +291,11 @@ public class ShopkeeperChunkActivator {
 		new DelayedChunkActivationTask(chunkData).start();
 	}
 
-	private class DelayedChunkActivationTask implements Runnable {
+	/**
+	 * emmmm
+	 * 我把  implements Runnable 给删了.
+	 */
+	private class DelayedChunkActivationTask  {
 
 		private final ChunkData chunkData;
 
@@ -305,17 +307,14 @@ public class ShopkeeperChunkActivator {
 		void start() {
 			assert !chunkData.isActive() && !chunkData.isActivationDelayed();
 			Location location = new Location(chunkData.getChunkCoords().getWorld(), chunkData.getChunkCoords().getChunkX() << 4, 0, chunkData.getChunkCoords().getChunkZ() << 4);
-			ScheduledTask task = Bukkit.getRegionScheduler().runDelayed(plugin, location, task1 -> {
-				run();
-			}, CHUNK_ACTIVATION_DELAY_TICKS);
-			chunkData.setDelayedActivationTask(task);
-		}
 
-		@Override
-		public void run() {
-			assert chunkData.getChunkCoords().isChunkLoaded(); // We stop the task on chunk unloads
-			chunkData.setDelayedActivationTask(null);
-			activateChunk(chunkData);
+			ScheduledTask task = Bukkit.getRegionScheduler().runDelayed(plugin, location, task1 -> {
+				assert chunkData.getChunkCoords().isChunkLoaded(); // 我们在 chunk 卸载时停止任务
+				chunkData.setDelayedActivationTask(null);
+				activateChunk(chunkData);
+			}, CHUNK_ACTIVATION_DELAY_TICKS);
+
+			chunkData.setDelayedActivationTask(task);
 		}
 	}
 

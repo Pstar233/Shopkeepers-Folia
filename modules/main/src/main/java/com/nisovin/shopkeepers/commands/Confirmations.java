@@ -87,7 +87,10 @@ public class Confirmations {
 		Validate.notNull(action, "action is null");
 		Validate.isTrue(timeoutTicks > 0, "timeoutTicks has to be positive");
 
-		ScheduledTask taskId = Bukkit.getGlobalRegionScheduler().runDelayed(plugin, task -> {
+		Player player = (Player) sender;
+		Location location = player.getLocation();
+
+		ScheduledTask taskId = Bukkit.getRegionScheduler().runDelayed(plugin, location, task -> {
 			this.endConfirmation(sender);
 			TextUtils.sendMessage(sender, Messages.confirmationExpired);
 		}, timeoutTicks);
@@ -97,17 +100,17 @@ public class Confirmations {
 				new PendingConfirmation(action, taskId)
 		);
 		if (previousPendingConfirmation != null) {
-			// 取消上一个待处理的确认任务:
+			// 取消上一个待确认任务：
 			previousPendingConfirmation.getTaskId().cancel();
 		}
 	}
 
-	// 返回等待确认的作。
+	// Returns the action that was awaiting confirmation.
 	public @Nullable Runnable endConfirmation(CommandSender sender) {
 		Validate.notNull(sender, "sender is null");
 		PendingConfirmation pendingConfirmation = pendingConfirmations.remove(this.getSenderKey(sender));
 		if (pendingConfirmation != null) {
-			// 结束确认任务:
+			// End confirmation task:
 			pendingConfirmation.getTaskId().cancel();
 
 			// Return action:

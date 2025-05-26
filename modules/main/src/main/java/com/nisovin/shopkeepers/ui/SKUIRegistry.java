@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryCloseEvent;
@@ -159,7 +158,7 @@ public class SKUIRegistry extends AbstractTypeRegistry<AbstractUIType>
 		} else {
 			openUIEvent = new ShopkeeperOpenUIEvent(shopkeeper, uiType, player, silentRequest);
 		}
-		Bukkit.getPluginManager().callEvent(openUIEvent);
+		Bukkit.getServer().getPluginManager().callEvent(openUIEvent);
 		if (openUIEvent.isCancelled()) {
 			Log.debug(() -> "A plugin cancelled the opening of UI '" + uiIdentifier
 					+ "' for player " + playerName + ".");
@@ -325,9 +324,15 @@ public class SKUIRegistry extends AbstractTypeRegistry<AbstractUIType>
 		// Deactivate currently active UIs for this shopkeeper:
 		this.deactivateUIs(shopkeeper);
 
-		SchedulerUtils.runTaskOrOmit(plugin, () -> {
-			this.abortUISessions(shopkeeper);
-		});
+		if (shopkeeper.getLocation() != null) {
+			SchedulerUtils.runRegionScheduler(plugin, () -> {
+				this.abortUISessions(shopkeeper);
+			}, shopkeeper.getLocation());
+		}else {
+			SchedulerUtils.runAsyncTaskOrOmit(plugin, ()->{
+				this.abortUISessions(shopkeeper);
+			});
+		}
 	}
 
 	private void deactivateUIs(Shopkeeper shopkeeper) {

@@ -3,7 +3,6 @@ package com.nisovin.shopkeepers.shopobjects.citizens;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-
 import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -135,8 +134,8 @@ class CitizensListener implements Listener {
 				this.reset();
 				this.handleTrait(trait, player); // Handle with player (can be null though)
 			} else {
-				// 在我们达到此状态之前，任务应该被重置。无论如何，我们都会检查这个
-				//以防万一。
+				// The task should get reset before we reach this state. We check for this anyway
+				// just in case.
 				assert pendingTraitTask == null;
 				if (pendingTraitTask == null || Unsafe.assertNonNull(pendingTraitTask).isCancelled()) {
 					pendingTraitTask = Bukkit.getGlobalRegionScheduler().runDelayed(plugin, task -> {

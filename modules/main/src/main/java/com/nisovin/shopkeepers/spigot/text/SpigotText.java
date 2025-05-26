@@ -7,18 +7,23 @@ import org.bukkit.command.CommandSender;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.nisovin.shopkeepers.api.internal.util.Unsafe;
+import com.nisovin.shopkeepers.compat.NMSManager;
 import com.nisovin.shopkeepers.debug.Debug;
 import com.nisovin.shopkeepers.debug.DebugOptions;
 import com.nisovin.shopkeepers.spigot.SpigotFeatures;
 import com.nisovin.shopkeepers.text.ClickEventText;
 import com.nisovin.shopkeepers.text.FormattingText;
 import com.nisovin.shopkeepers.text.HoverEventText;
+import com.nisovin.shopkeepers.text.HoverEventText.EntityContent;
+import com.nisovin.shopkeepers.text.HoverEventText.ItemContent;
+import com.nisovin.shopkeepers.text.HoverEventText.TextContent;
 import com.nisovin.shopkeepers.text.InsertionText;
 import com.nisovin.shopkeepers.text.PlaceholderText;
 import com.nisovin.shopkeepers.text.PlainText;
 import com.nisovin.shopkeepers.text.Text;
 import com.nisovin.shopkeepers.text.TranslatableText;
 import com.nisovin.shopkeepers.util.bukkit.TextUtils;
+import com.nisovin.shopkeepers.util.inventory.ItemUtils;
 import com.nisovin.shopkeepers.util.java.StringUtils;
 import com.nisovin.shopkeepers.util.java.Validate;
 import com.nisovin.shopkeepers.util.logging.Log;
@@ -281,28 +286,46 @@ public final class SpigotText {
 
 		private static net.md_5.bungee.api.chat.HoverEvent toSpigot(HoverEventText hoverEvent) {
 			assert hoverEvent != null;
-			net.md_5.bungee.api.chat.HoverEvent.Action action = toSpigot(hoverEvent.getAction());
-			BaseComponent[] value = new BaseComponent[] { toSpigot(hoverEvent.getValue()) };
-			// TODO https://github.com/SpigotMC/BungeeCord/issues/3688: There is currently no API
-			// that correctly serializes the item data as Content. However, serializing the item NBT
-			// text works.
-			return new net.md_5.bungee.api.chat.HoverEvent(action, value);
-		}
+			var hoverEventContent = hoverEvent.getContent();
+			if (hoverEventContent instanceof TextContent textContent) {
+				var action = net.md_5.bungee.api.chat.HoverEvent.Action.SHOW_TEXT;
+				var value = new BaseComponent[] { toSpigot(textContent.getText()) };
+				var content = new net.md_5.bungee.api.chat.hover.content.Text(value);
+				return new net.md_5.bungee.api.chat.HoverEvent(action, content);
+			} else if (hoverEventContent instanceof ItemContent itemContent) {
+				var item = ItemUtils.asItemStack(itemContent.getItem());
+				String itemSnbt = null;
+				if (NMSManager.getProvider().supportsItemSNBTHoverEvents()) {
+					itemSnbt = NMSManager.getProvider().getItemSNBT(item);
+				}
 
-		private static net.md_5.bungee.api.chat.HoverEvent.Action toSpigot(
-				HoverEventText.Action hoverEventAction
-		) {
-			assert hoverEventAction != null;
-			switch (hoverEventAction) {
-			case SHOW_TEXT:
-				return net.md_5.bungee.api.chat.HoverEvent.Action.SHOW_TEXT;
-			case SHOW_ITEM:
-				return net.md_5.bungee.api.chat.HoverEvent.Action.SHOW_ITEM;
-			case SHOW_ENTITY:
-				return net.md_5.bungee.api.chat.HoverEvent.Action.SHOW_ENTITY;
-			default:
-				throw new IllegalStateException("Unexpected hover event action: "
-						+ hoverEventAction);
+				if (itemSnbt != null) {
+					var action = net.md_5.bungee.api.chat.HoverEvent.Action.SHOW_ITEM;
+					var value = new BaseComponent[] { toSpigot(Text.of(itemSnbt)) };
+					return new net.md_5.bungee.api.chat.HoverEvent(action, value);
+				} else {
+					// TODO https://github.com/SpigotMC/BungeeCord/issues/3688: Component data is
+					// not supported currently.
+					var action = net.md_5.bungee.api.chat.HoverEvent.Action.SHOW_ITEM;
+					var content = new net.md_5.bungee.api.chat.hover.content.Item(
+							item.getType().getKey().toString(),
+							item.getAmount(),
+							null
+					);
+					return new net.md_5.bungee.api.chat.HoverEvent(action, content);
+				}
+			} else if (hoverEventContent instanceof EntityContent entityContent) {
+				var action = net.md_5.bungee.api.chat.HoverEvent.Action.SHOW_ENTITY;
+				var nameText = entityContent.getName();
+				var content = new net.md_5.bungee.api.chat.hover.content.Entity(
+						entityContent.getType().toString(),
+						entityContent.getUuid().toString(),
+						nameText == null ? null : toSpigot(nameText)
+				);
+				return new net.md_5.bungee.api.chat.HoverEvent(action, content);
+			} else {
+				throw new IllegalStateException("Unexpected hover event content: "
+						+ hoverEventContent);
 			}
 		}
 

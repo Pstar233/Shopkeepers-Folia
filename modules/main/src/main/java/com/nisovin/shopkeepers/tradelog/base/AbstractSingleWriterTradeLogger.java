@@ -32,11 +32,11 @@ import com.nisovin.shopkeepers.util.java.VoidCallable;
 import com.nisovin.shopkeepers.util.logging.Log;
 
 /**
- * 具有单个并发写入器的 {@link  TradeLogger} 的基类。交易被缓冲，并且
- * 定期分批保留。
+ * Base class for {@link TradeLogger}s with a single concurrent writer. Trades are buffered and
+ * periodically persisted in batches.
  * <p>
- * 如果需要任何初始设置，请覆盖 {@link #preSetup（）}、{@link #asyncSetup（）} 和
- * {@link #postSetup（）}。
+ * If any initial setup is required, override {@link #preSetup()}, {@link #asyncSetup()} and
+ * {@link #postSetup()} accordingly.
  */
 public abstract class AbstractSingleWriterTradeLogger implements TradeLogger {
 
@@ -149,7 +149,7 @@ public abstract class AbstractSingleWriterTradeLogger implements TradeLogger {
 
 	/**
 	 * Call this to disable this trade logger, e.g. if the setup has failed. Trades won't be logged.
-	 * 
+	 *
 	 * @param reason
 	 *            the reason
 	 */
@@ -202,12 +202,8 @@ public abstract class AbstractSingleWriterTradeLogger implements TradeLogger {
 			// There is already a delayed save in progress:
 			return;
 		}
-
-		delayedSaveTask = SchedulerUtils.runTaskLaterOrOmit(
-				plugin,
-				new DelayedSaveTask(),
-				DELAYED_SAVE_TICKS
-		);
+		;
+		delayedSaveTask = SchedulerUtils.runAsyncTaskLaterOrOmit(plugin, new DelayedSaveTask(), DELAYED_SAVE_TICKS);
 	}
 
 	private class DelayedSaveTask implements Runnable {
@@ -250,7 +246,6 @@ public abstract class AbstractSingleWriterTradeLogger implements TradeLogger {
 		}
 
 		private class InternalSyncCallbackTask extends SingletonTask.InternalSyncCallbackTask {
-
 		}
 
 		@Override
@@ -378,7 +373,7 @@ public abstract class AbstractSingleWriterTradeLogger implements TradeLogger {
 
 		/**
 		 * Checks if there are any remaining trades in this batch that need to be persisted.
-		 * 
+		 *
 		 * @return <code>true</code> if there are unsaved trades for the current batch
 		 */
 		public boolean hasUnsavedTrades() {
@@ -390,7 +385,7 @@ public abstract class AbstractSingleWriterTradeLogger implements TradeLogger {
 		 * <p>
 		 * Call {@link #onTradeSuccessfullySaved()} once the trade record has been successfully
 		 * persisted to move the cursor forward.
-		 * 
+		 *
 		 * @return the next trade record to persist, or <code>null</code> if there are no more
 		 *         trades to persist in this batch
 		 */
@@ -419,7 +414,7 @@ public abstract class AbstractSingleWriterTradeLogger implements TradeLogger {
 
 	/**
 	 * Gets a compact (one line) string representation of the item's metadata.
-	 * 
+	 *
 	 * @param itemStack
 	 *            the item
 	 * @return the item's metadata, or an empty string if {@link Settings#logItemMetadata} is
@@ -491,7 +486,7 @@ public abstract class AbstractSingleWriterTradeLogger implements TradeLogger {
 	 * informed. If the plugin is currently shutting down, the data for any unsaved trades is lost.
 	 * Otherwise, if the plugin is not shutting down, we re-attempt the saving of the unsaved trade
 	 * records as part of the next batch.
-	 * 
+	 *
 	 * @param saveContext
 	 *            the save context
 	 * @throws Exception

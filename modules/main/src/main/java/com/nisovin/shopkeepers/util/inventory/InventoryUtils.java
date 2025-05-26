@@ -2,18 +2,15 @@ package com.nisovin.shopkeepers.util.inventory;
 
 import java.util.Objects;
 import java.util.function.Predicate;
-
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryType;
-import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
-import org.bukkit.plugin.Plugin;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.nisovin.shopkeepers.api.ShopkeepersPlugin;
@@ -24,7 +21,7 @@ import com.nisovin.shopkeepers.util.annotations.ReadWrite;
 import com.nisovin.shopkeepers.util.java.Validate;
 
 /**
- * 与库存相关的实用功能。
+ * Utility functions related to inventories.
  */
 public final class InventoryUtils {
 
@@ -674,31 +671,6 @@ public final class InventoryUtils {
 	) {
 		Validate.notNull(inventory, "inventory is null");
 		inventory.setItem(slot, itemStack);
-	}
-
-	// TODO Replace this with the corresponding Bukkit API method added in late 1.15.2. See
-	// https://hub.spigotmc.org/stash/projects/SPIGOT/repos/bukkit/commits/da9ef3c55fa3bce91f7fdcd77d50171be7297d7d
-	// Note: MC 1.20.5 added EquipmentSlot.Body. E.g. used for horse armor. Not relevant for
-	// PlayerInventory.
-	public static @Nullable ItemStack getItem(PlayerInventory playerInventory, EquipmentSlot slot) {
-		Validate.notNull(playerInventory, "playerInventory is null");
-		Validate.notNull(slot, "slot is null");
-		switch (slot) {
-		case HAND:
-			return playerInventory.getItemInMainHand();
-		case OFF_HAND:
-			return playerInventory.getItemInOffHand();
-		case FEET:
-			return playerInventory.getBoots();
-		case LEGS:
-			return playerInventory.getLeggings();
-		case CHEST:
-			return playerInventory.getChestplate();
-		case HEAD:
-			return playerInventory.getHelmet();
-		default:
-			return null;
-		}
 	}
 
 	private InventoryUtils() {

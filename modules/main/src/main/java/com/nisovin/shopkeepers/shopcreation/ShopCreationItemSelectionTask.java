@@ -2,9 +2,7 @@ package com.nisovin.shopkeepers.shopcreation;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
 import java.util.UUID;
-
 import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -16,14 +14,18 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import com.nisovin.shopkeepers.lang.Messages;
 import com.nisovin.shopkeepers.util.bukkit.TextUtils;
 
-class ShopCreationItemSelectionTask implements Runnable {
+/**
+ * emmmm
+ * 我把  implements Runnable 给删了.
+ */
+class ShopCreationItemSelectionTask {
 
-    /**
-	 * 我们发送商店创建项目选择消息之前的时间（以刻度为单位）。
+	/**
+	 * The time in ticks before we send the shop creation item selection message.
 	 * <p>
-	 * 只有在此延迟后玩家仍持有物品时，我们才会发送消息。这
-	 * 避免了玩家通过
-	 * 鼠标滚轮。
+	 * We only send the message if the player is still holding the item after this delay. This
+	 * avoids message spam when the player quickly scrolls through the items on the hotbar via the
+	 * mouse wheel.
 	 */
 	private static final long DELAY_TICKS = 5L; // 0.25 seconds
 
@@ -94,10 +96,28 @@ class ShopCreationItemSelectionTask implements Runnable {
 	}
 
 	private void start() {
-		// Cancel previous task if already active:
+		// 如果已激活，则取消上一个任务：
 		this.cancel();
+
 		Location location = player.getLocation();
-		bukkitTask = Bukkit.getRegionScheduler().runDelayed(plugin, location, task -> run(), DELAY_TICKS);
+		bukkitTask = Bukkit.getRegionScheduler().runDelayed(plugin, location, task -> {
+			// Cleanup:
+			cleanup(player);
+
+			if (!player.isOnline()) return; // No longer online
+			if (!ShopCreationItem.isShopCreationItem(player.getInventory().getItemInMainHand())) {
+				// No longer holding the shop creation item in hand:
+				return;
+			}
+
+			// Note: We do not check if the player has the permission to create shops here again. We
+			// checked that earlier already, before starting this task. Even if there has been a change
+			// to that in the meantime, there is no major harm caused by sending the selection message
+			// anyway. The task's delay is short enough that this does not matter.
+
+			// Inform the player about the shop creation item's usage:
+			TextUtils.sendMessage(player, Messages.creationItemSelected);
+		}, DELAY_TICKS);
 	}
 
 	// Note: Performs no cleanup.
@@ -108,23 +128,4 @@ class ShopCreationItemSelectionTask implements Runnable {
 		}
 	}
 
-	@Override
-	public void run() {
-		// Cleanup:
-		cleanup(player);
-
-		if (!player.isOnline()) return; // No longer online
-		if (!ShopCreationItem.isShopCreationItem(player.getInventory().getItemInMainHand())) {
-			// No longer holding the shop creation item in hand:
-			return;
-		}
-
-		// Note: We do not check if the player has the permission to create shops here again. We
-		// checked that earlier already, before starting this task. Even if there has been a change
-		// to that in the meantime, there is no major harm caused by sending the selection message
-		// anyway. The task's delay is short enough that this does not matter.
-
-		// Inform the player about the shop creation item's usage:
-		TextUtils.sendMessage(player, Messages.creationItemSelected);
-	}
 }

@@ -86,7 +86,7 @@ public abstract class AbstractPlayerShopType<T extends AbstractPlayerShopkeeper>
 				shopCreationData,
 				maxShopsLimit
 		);
-		Bukkit.getPluginManager().callEvent(createEvent);
+		Bukkit.getServer().getPluginManager().callEvent(createEvent);
 		if (createEvent.isCancelled()) {
 			Log.debug("PlayerShopkeeperCreateEvent was cancelled!");
 			return false;

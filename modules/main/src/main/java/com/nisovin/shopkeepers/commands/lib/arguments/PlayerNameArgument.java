@@ -3,9 +3,7 @@ package com.nisovin.shopkeepers.commands.lib.arguments;
 import java.util.Collections;
 import java.util.Locale;
 import java.util.Objects;
-import java.util.stream.Stream;
 
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
@@ -15,6 +13,7 @@ import com.nisovin.shopkeepers.commands.lib.argument.filter.ArgumentFilter;
 import com.nisovin.shopkeepers.commands.lib.context.CommandContextView;
 import com.nisovin.shopkeepers.lang.Messages;
 import com.nisovin.shopkeepers.text.Text;
+import com.nisovin.shopkeepers.util.bukkit.EntityUtils;
 import com.nisovin.shopkeepers.util.bukkit.TextUtils;
 import com.nisovin.shopkeepers.util.java.StringUtils;
 
@@ -91,9 +90,7 @@ public class PlayerNameArgument extends ObjectNameArgument {
 		// color codes).
 		// Normalizes whitespace and converts to lowercase:
 		String normalizedNamePrefix = StringUtils.normalize(namePrefix);
-		// TODO Cast: Workaround for a limitation of CheckerFramework
-		Stream<Player> onlinePlayers = Unsafe.castNonNull(Bukkit.getOnlinePlayers().stream());
-		Iterable<String> suggestions = onlinePlayers
+		Iterable<String> suggestions = EntityUtils.getOnlinePlayersStream()
 				.filter(player -> playerFilter.test(input, context, player))
 				.<@Nullable String>map(player -> {
 					// Note: Not suggesting both the name and display name for the same player.

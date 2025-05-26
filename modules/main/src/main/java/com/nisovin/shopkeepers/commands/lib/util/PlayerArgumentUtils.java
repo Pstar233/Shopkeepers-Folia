@@ -23,7 +23,8 @@ public final class PlayerArgumentUtils {
 	 * - Allowed characters for names: [a-zA-Z0-9_]
 	 * - Names don't contain whitespace.
 	 * - Names don't include color codes.
-	 * - Display names may include whitespace, color codes, arbitrary characters and may not be unique.
+	 * - Display names may include whitespace, color codes, arbitrary characters and might not be
+	 *   unique.
 	 */
 	public interface PlayerNameMatcher extends ObjectMatcher<Player> {
 
@@ -130,7 +131,8 @@ public final class PlayerArgumentUtils {
 				String normalizedDisplayName = StringUtils.normalize(TextUtils.stripColor(displayName));
 				this.match(
 						normalizedInput,
-						player, normalizedDisplayName,
+						player,
+						normalizedDisplayName,
 						matchingPlayers,
 						onlyPerfectMatches
 				);

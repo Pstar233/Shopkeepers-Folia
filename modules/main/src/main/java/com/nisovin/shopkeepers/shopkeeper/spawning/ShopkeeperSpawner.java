@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
+import com.nisovin.shopkeepers.api.ShopkeepersPlugin;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -297,7 +298,8 @@ public class ShopkeeperSpawner {
 		}
 
 		if (spawnImmediately) {
-			// 如有必要，这也会更新店主的生成状态（从生成队列中删除，等）：
+			// This also updates the shopkeeper's spawn state if necessary (remove from spawn queue,
+			// etc.):
 			if (this.doSpawnShopkeeper(shopkeeper)) {
 				return SpawnResult.SPAWNED;
 			} else {
@@ -369,14 +371,14 @@ public class ShopkeeperSpawner {
 		this.spawnShopkeeper(shopkeeper, true);
 	}
 
-	// 成功时返回 true。
+	// Returns true on success.
 	private boolean doSpawnShopkeeper(AbstractShopkeeper shopkeeper) {
 		assert shopkeeper != null;
 		AbstractShopObject shopObject = shopkeeper.getShopObject();
 		AbstractShopObjectType<?> shopObjectType = shopObject.getType();
 		assert shopObjectType.mustBeSpawned();
 
-		// 重置店主的生成状态：
+		// Reset the shopkeeper's spawn state:
 		this.updateSpawnState(shopkeeper, State.DESPAWNED);
 
 		// TODO Handle dynamic disabling of shop object types by despawning the corresponding shop
@@ -388,29 +390,27 @@ public class ShopkeeperSpawner {
 			return false;
 		}
 
-		// 设置新的生成状态：
+		// Set the new spawn state:
 		ShopkeeperSpawnState spawnState = shopkeeper.getComponents().getOrAdd(ShopkeeperSpawnState.class);
 		spawnState.setState(State.SPAWNED);
 
 		boolean spawned = false;
 		try {
-			// 这预计还会注册生成的 shop 对象：
-			// 如果店主已经生成，则这不起作用。
+			// This is expected to also register the spawned shop object:
+			// This has no effect if the shopkeeper is already spawned.
 			spawned = shopObject.spawn();
 		} catch (Throwable e) {
 			Log.severe(shopkeeper.getLogPrefix() + "Error during spawning!", e);
 		}
 		if (spawned) {
-			// 验证
-			Object ctId = shopObject.getLastId();
+			// Validation:
 			Object objectId = shopObject.getId();
-
 			if (objectId == null) {
 				Log.warning(shopkeeper.getLogPrefix()
-						+ "Successfully spawned, but provides no object id!");//没有提供对象 ID！
+						+ "Successfully spawned, but provides no object id!");
 			} else if (!objectId.equals(shopObject.getLastId())) {
 				Log.warning(shopkeeper.getLogPrefix()
-						+ "Successfully spawned, but object not registered!");//对象未注册！
+						+ "Successfully spawned, but object not registered!");
 			}
 			return true;
 		} else {
@@ -693,8 +693,10 @@ public class ShopkeeperSpawner {
 		// state changes that happen in the meantime:
 		chunks.forEach(chunkCoords -> {
 			if (!shopkeeperRegistry.isChunkActive(chunkCoords)) return;
+
 			Location location = new Location(chunkCoords.getWorld(), chunkCoords.getChunkX() << 4, 0, chunkCoords.getChunkZ() << 4);
-			Bukkit.getRegionScheduler().run(plugin, location, task -> {
+
+			Bukkit.getRegionScheduler().run(ShopkeepersPlugin.getInstance(), location, task -> {
 				Collection<? extends AbstractShopkeeper> chunkShopkeepers = shopkeeperRegistry.getShopkeepersInChunk(chunkCoords);
 				chunkShopkeepers.forEach(shopkeeper -> {
 					if (!shopkeeperFilter.test(shopkeeper)) return;
@@ -718,7 +720,7 @@ public class ShopkeeperSpawner {
 			// again. Any shopkeepers that have been newly added to the chunk in the meantime are
 			// ignored in the following, since their spawn states will not be 'spawning'.
 			Location location = new Location(chunkCoords.getWorld(), chunkCoords.getChunkX() << 4, 0, chunkCoords.getChunkZ() << 4);
-			Bukkit.getRegionScheduler().run(plugin, location, task -> {
+			Bukkit.getRegionScheduler().run(ShopkeepersPlugin.getInstance(), location, task -> {
 				this.spawnChunkShopkeepers(
 						chunkCoords,
 						spawnReason,
@@ -726,6 +728,7 @@ public class ShopkeeperSpawner {
 						spawnImmediately
 				);
 			});
+
 		});
 	}
 

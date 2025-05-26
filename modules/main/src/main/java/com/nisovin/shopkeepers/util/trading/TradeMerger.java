@@ -2,7 +2,6 @@ package com.nisovin.shopkeepers.util.trading;
 
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
-
 import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import org.bukkit.Bukkit;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -17,13 +16,13 @@ import com.nisovin.shopkeepers.util.bukkit.Ticks;
 import com.nisovin.shopkeepers.util.java.Validate;
 
 /**
- * 合并顺序触发的店主交易，这些交易涉及同一玩家、店主和
- *项目。
+ * Merges sequentially triggered shopkeeper trades that involve the same player, shopkeeper, and
+ * items.
  * <p>
- * 一旦遇到无法与之前交易合并的交易，或一旦确定
- * 最长持续时间已过，或者 {@link TradeMerger} 已禁用 {@link #onDisable（） }，则
- * 最初提供 {@link Consumer} 被告知合并的交易，以便他们可以
- * 进一步处理。
+ * Once a trade is encountered that cannot be merged with the previous trades, or once a certain
+ * maximum duration has passed, or the {@link TradeMerger} is {@link #onDisable() disabled}, an
+ * initially provided {@link Consumer} is informed about the merged trades so that they can be
+ * further processed.
  */
 public class TradeMerger {
 
@@ -216,7 +215,7 @@ public class TradeMerger {
 		this.endMergeDurationTask();
 
 		// 启动一个新的延迟任务，在一定的最大持续时间后结束交易合并：
-		mergeDurationTask = Bukkit.getGlobalRegionScheduler().runDelayed(plugin, task -> {
+		mergeDurationTask =Bukkit.getGlobalRegionScheduler().runDelayed(plugin, task -> {
 			new MaxMergeDurationTimeoutTask();
 		}, mergeDurationTicks);
 	}
@@ -269,7 +268,7 @@ public class TradeMerger {
 		// Start a new delayed task that ends the trade merging after a certain maximum duration:
 		long taskDelayTicks = Ticks.fromNanos(remainingTimeoutNanos);
 		assert taskDelayTicks >= 1; // Due to the threshold checked above
-		// Keep track of the timestamp of the last merged trade:
+		// 跟踪最后合并交易的时间戳：
 		nextMergeTimeoutStartNanos = lastMergedTradeNanos;
 		nextMergeTimeoutTask = Bukkit.getGlobalRegionScheduler().runDelayed(plugin, task -> {
 			new NextMergeTimeoutTask();

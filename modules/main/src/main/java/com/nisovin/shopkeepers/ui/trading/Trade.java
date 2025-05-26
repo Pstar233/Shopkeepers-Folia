@@ -256,7 +256,7 @@ public final class Trade {
 	public ShopkeeperTradeEvent callTradeEvent() {
 		tradeEventCalled = true;
 
-		Bukkit.getPluginManager().callEvent(tradeEvent);
+		Bukkit.getServer().getPluginManager().callEvent(tradeEvent);
 		return tradeEvent;
 	}
 

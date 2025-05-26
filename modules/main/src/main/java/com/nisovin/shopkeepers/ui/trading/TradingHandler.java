@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-
 import org.bukkit.Bukkit;
 import org.bukkit.Statistic;
 import org.bukkit.entity.Player;
@@ -41,6 +40,7 @@ import com.nisovin.shopkeepers.lang.Messages;
 import com.nisovin.shopkeepers.shopkeeper.AbstractShopkeeper;
 import com.nisovin.shopkeepers.ui.AbstractShopkeeperUIHandler;
 import com.nisovin.shopkeepers.ui.AbstractUIType;
+import com.nisovin.shopkeepers.ui.SKDefaultUITypes;
 import com.nisovin.shopkeepers.ui.state.UIState;
 import com.nisovin.shopkeepers.util.annotations.ReadOnly;
 import com.nisovin.shopkeepers.util.annotations.ReadWrite;
@@ -66,6 +66,10 @@ public class TradingHandler extends AbstractShopkeeperUIHandler {
 	protected static final int RESULT_ITEM_SLOT_ID = 2;
 
 	private final List<TradingListener> tradingListeners = new ArrayList<>();
+
+	public TradingHandler(AbstractShopkeeper shopkeeper) {
+		this(SKDefaultUITypes.TRADING(), shopkeeper);
+	}
 
 	public TradingHandler(AbstractUIType uiType, AbstractShopkeeper shopkeeper) {
 		super(uiType, shopkeeper);
@@ -893,9 +897,9 @@ public class TradingHandler extends AbstractShopkeeperUIHandler {
 	}
 
 	private void commonApplyTrade(Trade trade) {
-		// 更新商户库存内容：
+		// Update merchant inventory contents:
 		MerchantInventory merchantInventory = trade.getMerchantInventory();
-		merchantInventory.setItem(RESULT_ITEM_SLOT_ID, null); // 除结果槽，以防万一
+		merchantInventory.setItem(RESULT_ITEM_SLOT_ID, null); // Clear result slot, just in case
 
 		TradingRecipe tradingRecipe = trade.getTradingRecipe();
 		ItemStack newOfferedItem1 = ItemUtils.decreaseItemAmount(
@@ -906,8 +910,8 @@ public class TradingHandler extends AbstractShopkeeperUIHandler {
 				trade.getOfferedItem2(),
 				ItemUtils.getItemStackAmount(tradingRecipe.getItem2())
 		);
-		// 将更改通知商户库存（更新活跃交易配方和
-		// 结果项）：
+		// Inform the merchant inventory about the change (updates the active trading recipe and
+		// result item):
 		boolean itemOrderSwapped = trade.isItemOrderSwapped();
 		merchantInventory.setItem(
 				itemOrderSwapped ? BUY_ITEM_2_SLOT_ID : BUY_ITEM_1_SLOT_ID, newOfferedItem1
@@ -934,9 +938,9 @@ public class TradingHandler extends AbstractShopkeeperUIHandler {
 		ShopkeeperTradeEvent tradeEvent = trade.getTradeEvent();
 		tradeEvent.getTradeEffects().forEach(tradeEffect -> tradeEffect.onTradeApplied(tradeEvent));
 
-		// Call trade completed 事件：
+		// Call trade completed event:
 		ShopkeeperTradeCompletedEvent tradeCompletedEvent = new ShopkeeperTradeCompletedEvent(tradeEvent);
-		Bukkit.getPluginManager().callEvent(tradeCompletedEvent);
+		Bukkit.getServer().getPluginManager().callEvent(tradeCompletedEvent);
 
 		// Play a sound effect if this is the first trade triggered by the inventory click:
 		boolean silent = (trade.getTradeNumber() > 1);

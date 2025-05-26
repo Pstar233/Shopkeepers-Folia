@@ -160,6 +160,8 @@ class CommandDebugCreateShops extends PlayerCommand {
 			equipment.setItem(EquipmentSlot.FEET, UnmodifiableItemStack.of(new ItemStack(Material.DIAMOND_BOOTS)));
 			// BODY: Only supported by specific mobs and for specific items (e.g. horse and wolf
 			// armor, llama carpet).
+			// SADDLE: Only supported by specific mob types (horse, llama, strider, pig), which come
+			// with a dedicated editor option.
 		}
 
 		player.sendMessage(ChatColor.GREEN + "Done! Created " + ChatColor.YELLOW + created

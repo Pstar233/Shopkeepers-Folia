@@ -4,9 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import com.nisovin.shopkeepers.commands.lib.arguments.PlayerUUIDArgument;
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.inventory.Inventory;
@@ -190,16 +188,15 @@ public class TradingPlayerShopEditorHandler extends PlayerShopEditorHandler {
 	private void placeCursorInTrades(InventoryView view, int rawSlot, ItemStack cursorClone) {
 		assert !ItemUtils.isEmpty(cursorClone);
 		cursorClone.setAmount(1);
-		// 替换占位符项（如果这是其中之一）：
+		// Replace placeholder item, if this is one:
 		ItemStack cursorFinal = PlaceholderItems.replace(cursorClone);
-		Location location = view.getPlayer().getLocation();
-		Bukkit.getRegionScheduler().run(ShopkeepersPlugin.getInstance(), location, task -> {
+		Bukkit.getRegionScheduler().run(ShopkeepersPlugin.getInstance(), view.getPlayer().getLocation(), task -> {
 			if (view.getPlayer().getOpenInventory() != view) return;
 
 			Inventory inventory = view.getTopInventory();
 			inventory.setItem(rawSlot, cursorFinal); // This copies the item internally
 
-			// 更新 trade 列（如有必要，替换空插槽占位符项）：
+			// Update the trade column (replaces empty slot placeholder items if necessary):
 			this.updateTradeColumn(inventory, this.getTradeColumn(rawSlot));
 		});
 	}

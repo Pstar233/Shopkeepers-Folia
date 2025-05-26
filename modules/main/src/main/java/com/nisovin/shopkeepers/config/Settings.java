@@ -861,12 +861,12 @@ public class Settings extends Config {
 		if (slimeMaxSize < SlimeShop.MIN_SIZE || slimeMaxSize > SlimeShop.MAX_SIZE) {
 			Log.warning(this.getLogPrefix() + "'slime-max-size' must be between "
 					+ SlimeShop.MIN_SIZE + " and " + SlimeShop.MAX_SIZE + ".");
-			slimeMaxSize = MathUtils.trim(slimeMaxSize, SlimeShop.MIN_SIZE, SlimeShop.MAX_SIZE);
+			slimeMaxSize = MathUtils.clamp(slimeMaxSize, SlimeShop.MIN_SIZE, SlimeShop.MAX_SIZE);
 		}
 		if (magmaCubeMaxSize < MagmaCubeShop.MIN_SIZE || magmaCubeMaxSize > MagmaCubeShop.MAX_SIZE) {
 			Log.warning(this.getLogPrefix() + "'magma-cube-max-size' must be between "
 					+ MagmaCubeShop.MIN_SIZE + " and " + MagmaCubeShop.MAX_SIZE + ".");
-			magmaCubeMaxSize = MathUtils.trim(magmaCubeMaxSize, MagmaCubeShop.MIN_SIZE, MagmaCubeShop.MAX_SIZE);
+			magmaCubeMaxSize = MathUtils.clamp(magmaCubeMaxSize, MagmaCubeShop.MIN_SIZE, MagmaCubeShop.MAX_SIZE);
 		}
 
 		// Certain items cannot be of type AIR:

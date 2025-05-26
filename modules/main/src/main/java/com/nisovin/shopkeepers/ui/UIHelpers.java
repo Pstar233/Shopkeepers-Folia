@@ -1,13 +1,11 @@
 package com.nisovin.shopkeepers.ui;
 
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 
 import com.nisovin.shopkeepers.api.ShopkeepersPlugin;
 import com.nisovin.shopkeepers.util.inventory.ItemUtils;
-import org.bukkit.plugin.Plugin;
 
 /**
  * Common user interface helpers and behaviors.
@@ -17,8 +15,7 @@ public final class UIHelpers {
 	// The delay is for example required during the handling of inventory drag events, because the
 	// cancelled drag event resets the cursor afterwards.
 	public static void swapCursorDelayed(InventoryView view, int rawSlot) {
-		Location location 	= view.getPlayer().getLocation();
-		Bukkit.getRegionScheduler().run(ShopkeepersPlugin.getInstance(), location, task -> {
+		Bukkit.getRegionScheduler().run(ShopkeepersPlugin.getInstance(), view.getPlayer().getLocation(), task -> {
 			// Check that the player still has the same view open and then freshly get and check the
 			// involved items to make sure that players don't abuse this delay:
 			if (view.getPlayer().getOpenInventory() != view) return;

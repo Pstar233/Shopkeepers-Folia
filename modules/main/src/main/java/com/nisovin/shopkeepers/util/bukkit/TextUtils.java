@@ -426,12 +426,12 @@ public final class TextUtils {
 
 	public static Text getPlayerText(Player player) {
 		Validate.notNull(player, "player is null");
-		String playerName = Unsafe.assertNonNull(player.getName());
-		String playerUUIDString = player.getUniqueId().toString();
-		return Text.hoverEvent(Text.of(playerUUIDString))
-				.childInsertion(playerUUIDString)
-				.childText(playerName)
-				.buildRoot();
+		return getPlayerText(player.getName(), player.getUniqueId());
+	}
+
+	public static Text getPlayerText(User user) {
+		Validate.notNull(user, "user is null");
+		return getPlayerText(user.getName(), user.getUniqueId());
 	}
 
 	public static Text getPlayerText(@Nullable String playerName, @Nullable UUID playerUUID) {
@@ -472,7 +472,8 @@ public final class TextUtils {
 			// Item SNBT is not supported.
 			return Text.text("");
 		} else {
-			return Text.hoverEvent(HoverEventText.Action.SHOW_ITEM, Text.of(itemSNBT));
+			var unmodifiableItem = UnmodifiableItemStack.ofNonNull(itemStack);
+			return Text.hoverEvent(new HoverEventText.ItemContent(unmodifiableItem));
 		}
 	}
 
@@ -493,28 +494,24 @@ public final class TextUtils {
 		// Note: This might not necessarily match the name that is usually displayed for an
 		// ItemStack, but rather the translated item type name (for example for items such as
 		// different types of potions, skulls, etc.).
-		String translationKey = material.getBlockTranslationKey();
+		String translationKey = material.getTranslationKey();
 		// We use the formatted name as fallback.
 		return Text.translatable(translationKey).child(formattedName).getRoot();
 	}
 
 	/**
-	 * 将给定 {@link ItemStack} 的 {@link Material} 名称格式化为更用户友好的
-	 *表示法。
+	 * Formats the {@link Material} name of the given {@link ItemStack} to a more user-friendly
+	 * representation.
 	 * <p>
-	 * 如果给定的项目堆栈为 <code>null</code>，则返回空 Text。
-	 *
+	 * If the given item stack is <code>null</code>, this returns an empty Text.
+	 * 
 	 * @param itemStack
-	 * 物品堆栈，可以为 <code>null</code>
-	 * @return格式化的材质名称，而不是 <code>null</code>
-	 * @see #getMaterialNameForDisplay（材料）
+	 *            the item stack, can be <code>null</code>
+	 * @return the formatted material name, not <code>null</code>
+	 * @see #getMaterialNameForDisplay(Material)
 	 */
 	public static Text getMaterialNameForDisplay(@Nullable ItemStack itemStack) {
-		if (itemStack == null) {
-			// 例如返回一个显示为“无物品”的 Text
-			return Text.of("无物品");
-		}
-		return getMaterialNameForDisplay(itemStack.getType());
+		return getMaterialNameForDisplay(itemStack != null ? itemStack.getType() : null);
 	}
 
 	// SENDING

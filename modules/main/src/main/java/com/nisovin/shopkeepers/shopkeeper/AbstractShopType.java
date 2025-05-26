@@ -276,7 +276,7 @@ public abstract class AbstractShopType<T extends AbstractShopkeeper>
 	protected boolean handleSpecificShopkeeperCreation(ShopCreationData creationData) {
 		// Call event:
 		PlayerCreateShopkeeperEvent createEvent = new PlayerCreateShopkeeperEvent(creationData);
-		Bukkit.getPluginManager().callEvent(createEvent);
+		Bukkit.getServer().getPluginManager().callEvent(createEvent);
 		if (createEvent.isCancelled()) {
 			Log.debug("ShopkeeperCreateEvent was cancelled!");
 			return false;

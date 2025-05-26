@@ -61,7 +61,7 @@ public final class InteractionUtils {
 				block,
 				BlockFace.UP
 		);
-		Bukkit.getPluginManager().callEvent(dummyInteractEvent);
+		Bukkit.getServer().getPluginManager().callEvent(dummyInteractEvent);
 		boolean canAccessBlock = (dummyInteractEvent.useInteractedBlock() != Result.DENY);
 
 		// Reset the block type again (without physics):
@@ -107,7 +107,7 @@ public final class InteractionUtils {
 				player,
 				entity
 		);
-		Bukkit.getPluginManager().callEvent(dummyInteractEvent);
+		Bukkit.getServer().getPluginManager().callEvent(dummyInteractEvent);
 		boolean canAccessEntity = !dummyInteractEvent.isCancelled();
 
 		// Resetting items in main and off hand:

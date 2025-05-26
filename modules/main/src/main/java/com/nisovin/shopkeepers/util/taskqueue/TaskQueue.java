@@ -185,10 +185,10 @@ public abstract class TaskQueue<@NonNull T> implements TaskQueueStatistics {
 			return;
 		}
 
-		// 开始新任务:
+		// Start new task:
 		task = Bukkit.getAsyncScheduler().runAtFixedRate(plugin, task1 -> {
 			this.createTask().run();
-		}, 1 * 50, taskPeriodTicks * 50, TimeUnit.MILLISECONDS);
+		}, (1 * 50), (taskPeriodTicks * 50), TimeUnit.MILLISECONDS);
 	}
 
 	private void stopTask() {

@@ -1,7 +1,6 @@
 package com.nisovin.shopkeepers.shopkeeper.spawning;
 
 import java.util.function.Predicate;
-
 import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
@@ -115,7 +114,7 @@ class WorldSaveDespawner {
 
 		void start() {
 			assert !worldData.isWorldSaveRespawnPending();
-			this.task = Bukkit.getGlobalRegionScheduler().run(plugin, task1 ->  run());
+			this.task = Bukkit.getGlobalRegionScheduler().run(plugin, task1 -> run());
 			worldData.setWorldSaveRespawnTask(this);
 		}
 

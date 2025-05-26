@@ -155,11 +155,6 @@ public class Messages extends Config {
 			"Changes the coat pattern",
 			"of the horse"
 	));
-	public static String buttonHorseSaddle = c("&aToggle horse saddle");
-	public static List<String> buttonHorseSaddleLore = c(Arrays.asList(
-			"Toggles the saddle",
-			"of the horse"
-	));
 	public static String buttonHorseArmor = c("&aChoose horse armor");
 	public static List<String> buttonHorseArmorLore = c(Arrays.asList(
 			"Changes the armor",
@@ -193,6 +188,10 @@ public class Messages extends Config {
 			"Toggles the fox's",
 			"sleeping pose"
 	));
+	public static String buttonCowVariant = c("&aChoose cow variant");
+	public static List<String> buttonCowVariantLore = c(Arrays.asList(
+			"Changes the cow's look"
+	));
 	public static String buttonMooshroomVariant = c("&aChoose mooshroom variant");
 	public static List<String> buttonMooshroomVariantLore = c(Arrays.asList(
 			"Changes the look",
@@ -206,9 +205,13 @@ public class Messages extends Config {
 	public static List<String> buttonParrotVariantLore = c(Arrays.asList(
 			"Changes the parrot's look"
 	));
-	public static String buttonPigSaddle = c("&aToggle pig saddle");
-	public static List<String> buttonPigSaddleLore = c(Arrays.asList(
-			"Toggles the pig's saddle"
+	public static String buttonPigVariant = c("&aChoose pig variant");
+	public static List<String> buttonPigVariantLore = c(Arrays.asList(
+			"Changes the pig's look"
+	));
+	public static String buttonChickenVariant = c("&aChoose chicken variant");
+	public static List<String> buttonChickenVariantLore = c(Arrays.asList(
+			"Changes the chicken's look"
 	));
 	public static String buttonSheepColor = c("&aChoose sheep color");
 	public static List<String> buttonSheepColorLore = c(Arrays.asList(
@@ -319,6 +322,10 @@ public class Messages extends Config {
 	public static List<String> buttonWolfVariantLore = c(Arrays.asList(
 			"Changes the wolf's look"
 	));
+	public static String buttonSaddle = c("&aToggle saddle");
+	public static List<String> buttonSaddleLore = c(Arrays.asList(
+			"Toggles the mob's saddle"
+	));
 
 	public static String equipmentEditorTitle = c("Equipment Editor");
 	public static List<String> equipmentSlotLore = c(Arrays.asList(
@@ -334,6 +341,7 @@ public class Messages extends Config {
 	public static String equipmentSlotChest = c("&aChest");
 	public static String equipmentSlotHead = c("&aHead");
 	public static String equipmentSlotBody = c("&aBody");
+	public static String equipmentSlotSaddle = c("&aSaddle");
 
 	public static String adminSignShopLine1 = c("&2[SHOP]");
 	public static String adminSignShopLine2 = c("&7{shopName}");

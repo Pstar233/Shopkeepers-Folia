@@ -1,7 +1,6 @@
 package com.nisovin.shopkeepers.ui.villager.editor;
 
 import java.util.List;
-
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.DyeColor;
@@ -259,7 +258,7 @@ public final class VillagerEditorHandler extends AbstractEditorHandler {
 				UIState capturedUIState = captureState(editorSession.getUISession());
 				editorSession.getUISession().closeDelayedAndRunTask(() -> {
 					requestConfirmationDeleteVillager(editorSession, capturedUIState);
-				});
+				}, editorSession.getPlayer().getLocation());
 				return true;
 			}
 		};
@@ -316,7 +315,7 @@ public final class VillagerEditorHandler extends AbstractEditorHandler {
 						renameVillager(editorSession, message);
 					});
 					TextUtils.sendMessage(player, Messages.typeNewVillagerName);
-				});
+				}, editorSession.getPlayer().getLocation());
 				return true;
 			}
 		};
@@ -393,7 +392,7 @@ public final class VillagerEditorHandler extends AbstractEditorHandler {
 					}
 
 					VillagerEquipmentEditorUI.request(villager, player);
-				});
+				}, editorSession.getPlayer().getLocation());
 				return true;
 			}
 		};
@@ -440,7 +439,7 @@ public final class VillagerEditorHandler extends AbstractEditorHandler {
 					// Copy storage contents:
 					customInventory.setStorageContents(villagerInventory.getStorageContents());
 					player.openInventory(customInventory);
-				} );
+				}, editorSession.getPlayer().getLocation());
 				return true;
 			}
 		};

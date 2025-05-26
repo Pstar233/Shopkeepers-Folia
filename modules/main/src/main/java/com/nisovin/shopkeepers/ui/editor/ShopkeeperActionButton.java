@@ -43,7 +43,7 @@ public abstract class ShopkeeperActionButton extends ActionButton {
 
 		// Call shopkeeper edited event:
 		Player player = editorSession.getPlayer();
-		Bukkit.getPluginManager().callEvent(new ShopkeeperEditedEvent(shopkeeper, player));
+		Bukkit.getServer().getPluginManager().callEvent(new ShopkeeperEditedEvent(shopkeeper, player));
 
 		// Save:
 		shopkeeper.save();

@@ -13,10 +13,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-
-import io.papermc.paper.threadedregions.scheduler.AsyncScheduler;
-import io.papermc.paper.threadedregions.scheduler.RegionScheduler;
-import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -54,7 +50,6 @@ import com.nisovin.shopkeepers.util.java.ThrowableUtils;
 import com.nisovin.shopkeepers.util.java.Validate;
 import com.nisovin.shopkeepers.util.java.VoidCallable;
 import com.nisovin.shopkeepers.util.logging.Log;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Storage responsible for persisting and loading the data of shopkeepers.
@@ -138,7 +133,7 @@ public class SKShopkeeperStorage implements ShopkeeperStorage {
 	// loading the shopkeeper data, so that the save file doesn't get overwritten by any subsequent
 	// save requests.
 	private boolean savingDisabled = false;
-	private @Nullable ScheduledTask delayedSaveTask = null;
+	private @Nullable BukkitTask delayedSaveTask = null;
 
 	public SKShopkeeperStorage(SKShopkeepersPlugin plugin) {
 		DataVersion.init();
@@ -201,21 +196,16 @@ public class SKShopkeeperStorage implements ShopkeeperStorage {
 		delayedSaveTask = null;
 	}
 
-	private class PeriodicSaveTask implements Runnable {
-
+	private class PeriodicSaveTask{
 		private static final long PERIOD_TICKS = 6000L; // 5 minutes
 
 		void start() {
 			Bukkit.getGlobalRegionScheduler().runAtFixedRate(plugin, task -> {
-				run();
+				saveIfDirty();
 			}, PERIOD_TICKS, PERIOD_TICKS);
 
 		}
 
-		@Override
-		public void run() {
-			saveIfDirty();
-		}
 	}
 
 	private SKShopkeeperRegistry getShopkeeperRegistry() {
@@ -829,7 +819,7 @@ public class SKShopkeeperStorage implements ShopkeeperStorage {
 
 		void start() {
 			assert delayedSaveTask == null;
-			delayedSaveTask = SchedulerUtils.runTaskLaterOrOmit(plugin, this, DELAYED_SAVE_TICKS);
+			delayedSaveTask = SchedulerUtils.runGlobalTaskScheduler(plugin, this, DELAYED_SAVE_TICKS);
 		}
 
 		@Override
@@ -863,6 +853,7 @@ public class SKShopkeeperStorage implements ShopkeeperStorage {
 			Log.warning("Skipping save, because saving got disabled.");
 			return;
 		}
+
 		if (async) {
 			saveTask.run();
 		} else {

@@ -379,14 +379,14 @@ public final class ItemUtils {
 		}
 	}
 
-	// Trims the amount between 1 and the item stack's max stack size.
-	public static int trimItemAmount(@ReadOnly ItemStack itemStack, int amount) {
-		return MathUtils.trim(amount, 1, itemStack.getMaxStackSize());
+	// Clamps the amount between 1 and the item stack's max stack size.
+	public static int clampAmount(@ReadOnly ItemStack itemStack, int amount) {
+		return MathUtils.clamp(amount, 1, itemStack.getMaxStackSize());
 	}
 
-	// Trims the amount between 1 and the item's default max-stack-size.
-	public static int trimItemAmount(Material itemType, int amount) {
-		return MathUtils.trim(amount, 1, itemType.getMaxStackSize());
+	// Clamps the amount between 1 and the item's default max-stack-size.
+	public static int clampAmount(Material itemType, int amount) {
+		return MathUtils.clamp(amount, 1, itemType.getMaxStackSize());
 	}
 
 	/**

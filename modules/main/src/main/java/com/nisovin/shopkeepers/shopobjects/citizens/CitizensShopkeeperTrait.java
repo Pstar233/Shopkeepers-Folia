@@ -136,7 +136,7 @@ public class CitizensShopkeeperTrait extends Trait {
 		// 另外：玩家的店主创建是在特征附加之后处理的。
 		Location location = getNPC().getEntity().getLocation();
 		Bukkit.getRegionScheduler().runDelayed(SKShopkeepersPlugin.getInstance(), location, task -> {
-
+			this.createShopkeeperIfMissing(null);
 		}, 5L);
 	}
 
@@ -225,8 +225,7 @@ public class CitizensShopkeeperTrait extends Trait {
 
 			// 注意：手动添加 trait 时，我们不会触发 NPC 数据的保存，因此我们
 			// 此外，当我们在此处再次删除 trait 时，请勿触发 Save。
-			Location location1 = npc.getEntity().getLocation();
-			Bukkit.getRegionScheduler().run(plugin, location1, task -> {
+			Bukkit.getRegionScheduler().run(plugin, location, task -> {
 				npc.removeTrait(CitizensShopkeeperTrait.class);
 			});
 		}

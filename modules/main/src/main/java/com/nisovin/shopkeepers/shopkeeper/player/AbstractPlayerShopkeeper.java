@@ -4,7 +4,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Supplier;
-
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -123,9 +122,9 @@ public abstract class AbstractPlayerShopkeeper
 
 	@Override
 	protected void setup() {
-		if (this.getUIHandler(DefaultUITypes.HIRING()) == null) {
-			this.registerUIHandler(new PlayerShopHiringHandler(this));
-		}
+		this.registerUIHandlerIfMissing(DefaultUITypes.HIRING(), () -> {
+			return new PlayerShopHiringHandler(this);
+		});
 		super.setup();
 	}
 
@@ -258,7 +257,8 @@ public abstract class AbstractPlayerShopkeeper
 				ShopkeeperNaming shopkeeperNaming = SKShopkeepersPlugin.getInstance().getShopkeeperNaming();
 				if (shopkeeperNaming.requestNameChange(player, this, newName)) {
 					// 在处理此事件后，手动从玩家的手上移除重命名物品：
-					Bukkit.getRegionScheduler().run(ShopkeepersPlugin.getInstance(), player.getLocation(), task -> {
+					Location location = player.getLocation();
+					Bukkit.getRegionScheduler().run(ShopkeepersPlugin.getInstance(), location, task -> {
 						ItemStack newItemInMainHand = ItemUtils.decreaseItemAmount(itemInMainHand, 1);
 						playerInventory.setItemInMainHand(newItemInMainHand);
 					});
@@ -624,7 +624,7 @@ public abstract class AbstractPlayerShopkeeper
 		return container.getBlock();
 	}
 
-	// 如果找不到容器，则返回 null。
+	// Returns null if the container could not be found.
 	public @Nullable Inventory getContainerInventory() {
 		Block container = this.getContainer();
 		if (container != null && ShopContainers.isSupportedContainer(container.getType())) {
@@ -754,7 +754,7 @@ public abstract class AbstractPlayerShopkeeper
 
 	@Override
 	public boolean openContainerWindow(Player player) {
-		// 检查容器是否仍然存在：
+		// Check if the container still exists:
 		Inventory containerInventory = this.getContainerInventory();
 		if (containerInventory == null) {
 			Log.debug(() -> "Cannot open container inventory for player '" + player.getName()

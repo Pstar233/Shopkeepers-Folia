@@ -227,6 +227,9 @@ class LivingEntityShopListener implements Listener {
 		}
 	}
 
+	// TODO Allow Citizen shopkeepers to get hurt if they are configured to be vulnerable? What
+	// about other aspects, such as being targeted by other mobs, creeper charging, enderman
+	// teleporting, etc.? Waiting for further clarification of actual usecases.
 	@EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
 	void onEntityDamage(EntityDamageEvent event) {
 		// Block damaging of shopkeepers:

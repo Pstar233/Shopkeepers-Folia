@@ -11,7 +11,7 @@ plugins {
 }
 tasks.withType(Javadoc).configureEach {
 	options.encoding = 'UTF-8'
-	options.addStringOption('Xdoclint:none', '-quiet') // 可选：禁用 doclint 警告
+	options.addStringOption('Xdoclint:none', '-quiet')
 	if (JavaVersion.current().isJava9Compatible()) {
 		options.addBooleanOption('html5', true)
 	}

@@ -3,13 +3,12 @@ version: '${pluginVersion}'
 description: Custom villager shopkeepers
 authors: [nisovin, blablubbabc]
 website: '${dboUrl}'
-# After loading the world management plugins and soft dependencies:
+# Loading after world management plugins and soft dependencies:
 softdepend: [Multiverse-Core, My Worlds, Transporter, Towny, WorldGuard, Citizens, Vault, Gringotts, ChestShop]
-
-folia-supported: true
 
 main: com.nisovin.shopkeepers.SKShopkeepersPlugin
 api-version: '1.20.6'
+folia-supported: true
 
 commands:
     shopkeeper:

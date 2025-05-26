@@ -9,7 +9,7 @@ import com.nisovin.shopkeepers.util.inventory.ItemData;
 import com.nisovin.shopkeepers.util.inventory.ItemUtils;
 
 /**
- * 与项目更新相关的帮助程序。请参阅 {@link UpdateItemEvent}。
+ * Helpers related to the updating of items. See {@link UpdateItemEvent}.
  */
 public class ItemUpdates {
 
@@ -22,7 +22,7 @@ public class ItemUpdates {
 	 */
 	public static UpdateItemEvent callUpdateItemEvent(UnmodifiableItemStack item) {
 		UpdateItemEvent updateItemEvent = new UpdateItemEvent(item);
-		Bukkit.getPluginManager().callEvent(updateItemEvent);
+		Bukkit.getServer().getPluginManager().callEvent(updateItemEvent);
 		return updateItemEvent;
 	}
 

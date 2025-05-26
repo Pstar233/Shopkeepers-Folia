@@ -1,9 +1,9 @@
 package com.nisovin.shopkeepers.shopkeeper.spawning;
 
 import java.util.function.Consumer;
-
 import com.nisovin.shopkeepers.api.ShopkeepersAPI;
 import com.nisovin.shopkeepers.api.ShopkeepersPlugin;
+import com.nisovin.shopkeepers.util.logging.Log;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.plugin.Plugin;
@@ -15,15 +15,15 @@ import com.nisovin.shopkeepers.util.java.Validate;
 import com.nisovin.shopkeepers.util.taskqueue.TaskQueue;
 
 /**
- * 用于对店主的生成进行负载均衡的队列。
+ * A queue for load balancing the spawning of shopkeepers.
  * <p>
- * 生成店主在性能方面可能相对昂贵。为了避免性能
- * 当激活具有大量店主的 chunk 时掉落，我们使用此队列来分配
- * 在几个刻内生成店主。
+ * Spawning shopkeepers can be relatively costly performance-wise. In order to avoid performance
+ * drops when chunks with lots of shopkeepers are activated, we use this queue to distribute the
+ * spawning of shopkeepers over several ticks.
  * <p>
- * 店主可能在等待生成时已被勾选。商店物品可以
- * 使用 {@link AbstractShopObject# isSpawningScheduled（）} 来检查它们当前是否仍处于待处理状态
- * 来生成。
+ * Shopkeepers may already be ticked while they are still pending to be spawned. Shop objects can
+ * use {@link AbstractShopObject#()} to check if they are currently still pending
+ * to be spawned.
  */
 public class ShopkeeperSpawnQueue extends TaskQueue<AbstractShopkeeper> {
 
@@ -38,7 +38,7 @@ public class ShopkeeperSpawnQueue extends TaskQueue<AbstractShopkeeper> {
 
 	ShopkeeperSpawnQueue(Plugin plugin, Consumer<? super AbstractShopkeeper> spawner) {
 		super(plugin, SPAWN_TASK_PERIOD_TICKS, SPAWNS_PER_EXECUTION);
-		Validate.notNull(spawner, "生成器为空");
+		Validate.notNull(spawner, "spawner is null");
 		this.spawner = spawner;
 	}
 
@@ -96,12 +96,22 @@ public class ShopkeeperSpawnQueue extends TaskQueue<AbstractShopkeeper> {
 	@Override
 	protected void process(AbstractShopkeeper shopkeeper) {
 		Location location = shopkeeper.getLocation();
-		Bukkit.getRegionScheduler().run(ShopkeepersPlugin.getInstance(), location, task -> {
-			// Reset the shopkeeper's 'queued' state:
-			this.resetQueued(shopkeeper);
-
-			// Spawn the shopkeeper:
-			spawner.accept(shopkeeper);
-		});
+		if (location != null){
+			Log.debug("生成店主|位置不为null");
+			Bukkit.getRegionScheduler().run(ShopkeepersPlugin.getInstance(), location, task -> {
+				// 重置店主的 'queued' 状态：
+				this.resetQueued(shopkeeper);
+				// 生成店主：
+				spawner.accept(shopkeeper);
+			});
+		}else {
+			Log.debug("生成店主|位置为null");
+			Bukkit.getAsyncScheduler().runNow(ShopkeepersPlugin.getInstance(), task -> {
+				// 重置店主的 'queued' 状态：
+				this.resetQueued(shopkeeper);
+				// 生成店主：
+				spawner.accept(shopkeeper);
+			});
+		}
 	}
 }

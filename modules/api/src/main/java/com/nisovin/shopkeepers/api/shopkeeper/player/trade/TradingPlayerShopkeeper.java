@@ -19,7 +19,7 @@ public interface TradingPlayerShopkeeper extends PlayerShopkeeper {
 	 * Gets the offers of this shopkeeper.
 	 * <p>
 	 * There can be multiple different offers for the same kind of item.
-	 *
+	 * 
 	 * @return an unmodifiable view on the shopkeeper's offers
 	 */
 	public List<? extends TradeOffer> getOffers();
@@ -33,7 +33,7 @@ public interface TradingPlayerShopkeeper extends PlayerShopkeeper {
 	 * Sets the shopkeeper's offers.
 	 * <p>
 	 * This replaces the shopkeeper's previous offers.
-	 *
+	 * 
 	 * @param offers
 	 *            the new offers
 	 */
@@ -44,7 +44,7 @@ public interface TradingPlayerShopkeeper extends PlayerShopkeeper {
 	 * <p>
 	 * The offer gets added to the end of the current offers. If you want to insert, replace or
 	 * reorder offers, use {@link #setOffers(List)} instead.
-	 *
+	 * 
 	 * @param offer
 	 *            the offer to add
 	 */
@@ -55,7 +55,7 @@ public interface TradingPlayerShopkeeper extends PlayerShopkeeper {
 	 * <p>
 	 * The offers get added to the end of the current offers. If you want to insert, replace or
 	 * reorder offers, use {@link #setOffers(List)} instead.
-	 *
+	 * 
 	 * @param offers
 	 *            the offers to add
 	 */

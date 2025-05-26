@@ -1,7 +1,6 @@
 package com.nisovin.shopkeepers.input.chat;
 
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -15,7 +14,7 @@ import com.nisovin.shopkeepers.input.InputRequest;
 import com.nisovin.shopkeepers.util.bukkit.EventUtils;
 
 /**
- * 管理玩家的聊天输入请求。
+ * Manages requests for chat input from players.
  */
 public class ChatInput extends InputManager<String> implements Listener {
 
@@ -61,8 +60,7 @@ public class ChatInput extends InputManager<String> implements Listener {
 		String message = event.getMessage();
 
 		// 在服务器的主线程上处理请求：
-		Location location = player.getLocation();
-		Bukkit.getRegionScheduler().run(plugin, location, task -> {
+		Bukkit.getRegionScheduler().run(plugin, player.getLocation(), task -> {
 			request.onInput(message);
 		});
 	}

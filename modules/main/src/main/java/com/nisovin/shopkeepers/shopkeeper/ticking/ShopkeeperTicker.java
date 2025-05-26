@@ -17,7 +17,6 @@ import com.nisovin.shopkeepers.shopkeeper.AbstractShopkeeper;
 import com.nisovin.shopkeepers.util.java.CyclicCounter;
 import com.nisovin.shopkeepers.util.java.Validate;
 import com.nisovin.shopkeepers.util.logging.Log;
-import com.nisovin.shopkeepers.util.taskqueue.TaskQueue;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 
@@ -222,23 +221,9 @@ public class ShopkeeperTicker {
 	// TICKING
 
 	private void startShopkeeperTickTask() {
-		new ShopkeeperTickTask().start();
-	}
-
-	private final class ShopkeeperTickTask implements Runnable {
-
-		private static final int PERIOD = TICKING_PERIOD_TICKS / TICKING_GROUPS;
-
-		void start() {
-			Bukkit.getAsyncScheduler().runAtFixedRate(plugin, task ->{
-				run();
-			}, PERIOD * 50, PERIOD * 50, TimeUnit.MILLISECONDS);
-		}
-
-		@Override
-		public void run() {
+		Bukkit.getAsyncScheduler().runAtFixedRate(plugin, task -> {
 			tickShopkeepers();
-		}
+		}, (TICKING_PERIOD_TICKS * 50), (TICKING_GROUPS * 50), TimeUnit.MILLISECONDS);
 	}
 
 	private void tickShopkeepers() {
@@ -248,11 +233,10 @@ public class ShopkeeperTicker {
 		TickingGroup tickingGroup = this.getTickingGroup(activeTickingGroup.getValue());
 		List<CompletableFuture<Void>> completableFutures = new ArrayList<>();
 		tickingGroup.getShopkeepers().forEach(abstractShopkeeper -> {
+			Location location = abstractShopkeeper.getLocation();
 			CompletableFuture<Void> voidCompletableFuture = new CompletableFuture<>();
 			completableFutures.add(voidCompletableFuture);
-
-			Location location = abstractShopkeeper.getLocation();
-			Bukkit. getRegionScheduler().run(plugin, location, task -> {
+			Bukkit.getRegionScheduler().run(plugin, location, task -> {
 				tickShopkeeper(abstractShopkeeper);
 				voidCompletableFuture.complete(null);
 			});

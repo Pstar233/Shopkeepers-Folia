@@ -256,27 +256,25 @@ public interface Text {
 	/**
 	 * Creates a new {@link TextBuilder} with the specified hover event.
 	 * 
-	 * @param action
-	 *            the hover event action, not <code>null</code>
-	 * @param value
-	 *            the hover event value, not <code>null</code>
+	 * @param content
+	 *            the hover event content, not <code>null</code>
 	 * @return the new {@link TextBuilder}
 	 */
-	public static TextBuilder hoverEvent(HoverEventText.Action action, Text value) {
-		return new HoverEventText(action, value);
+	public static TextBuilder hoverEvent(HoverEventText.Content content) {
+		return new HoverEventText(content);
 	}
 
 	/**
 	 * Creates a new {@link TextBuilder} with the specified hover text.
 	 * <p>
-	 * This is a shortcut for the corresponding {@link #hoverEvent(HoverEventText.Action, Text)}.
+	 * This is a shortcut for the corresponding {@link #hoverEvent(HoverEventText.Content)}.
 	 * 
 	 * @param hoverText
 	 *            the hover text, not <code>null</code>
 	 * @return the new {@link TextBuilder}
 	 */
 	public static TextBuilder hoverEvent(Text hoverText) {
-		return hoverEvent(HoverEventText.Action.SHOW_TEXT, hoverText);
+		return hoverEvent(new HoverEventText.TextContent(hoverText));
 	}
 
 	/**

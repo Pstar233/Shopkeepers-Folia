@@ -6,7 +6,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-
 import org.bukkit.Bukkit;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -281,8 +280,8 @@ public class SKShopkeepersPlugin extends JavaPlugin implements InternalShopkeepe
 
 		// Validate that this server is running a minimum required version:
 		if (this.outdatedServer) {
-			Log.severe("过时的服务器版本 (" + Bukkit.getVersion()
-					+ "): 无法启用 Shopkeepers。请更新您的服务器！");
+			Log.severe("Outdated server version (" + Bukkit.getVersion()
+					+ "): Shopkeepers cannot be enabled. Please update your server!");
 			this.setEnabled(false); // also calls onDisable
 			return;
 		}
@@ -341,7 +340,7 @@ public class SKShopkeepersPlugin extends JavaPlugin implements InternalShopkeepe
 		// potentially be interpreted as lag by the server.
 		// Another option is for these plugins to perform their setup during onLoad (similar to how
 		// we register default shop types, etc., during onLoad).
-		Bukkit.getPluginManager().callEvent(new ShopkeepersStartupEvent());
+		Bukkit.getServer().getPluginManager().callEvent(new ShopkeepersStartupEvent());
 
 		forcingCreatureSpawner.onEnable();
 		forcingEntityTeleporter.onEnable();

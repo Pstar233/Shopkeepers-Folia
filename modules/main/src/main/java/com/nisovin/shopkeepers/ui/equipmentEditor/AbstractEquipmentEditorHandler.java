@@ -5,10 +5,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
-
-import com.nisovin.shopkeepers.util.taskqueue.TaskQueue;
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.DragType;
@@ -38,6 +35,8 @@ import com.nisovin.shopkeepers.util.inventory.InventoryViewUtils;
 import com.nisovin.shopkeepers.util.inventory.ItemUtils;
 import com.nisovin.shopkeepers.util.java.EnumUtils;
 import com.nisovin.shopkeepers.util.java.Validate;
+
+import javax.swing.table.TableStringConverter;
 
 public abstract class AbstractEquipmentEditorHandler extends UIHandler {
 
@@ -138,6 +137,9 @@ public abstract class AbstractEquipmentEditorHandler extends UIHandler {
 		case "BODY": // TODO Added in Bukkit 1.20.5
 			displayName = Messages.equipmentSlotBody;
 			break;
+		case "SADDLE": // TODO Added in Bukkit 1.21.5
+			displayName = Messages.equipmentSlotSaddle;
+			break;
 		default:
 			// Fallback:
 			displayName = EnumUtils.formatEnumName(equipmentSlot.name());
@@ -207,8 +209,7 @@ public abstract class AbstractEquipmentEditorHandler extends UIHandler {
 
 		if (rightClick) {
 			// Clear the equipment slot:
-			Location location = view.getPlayer().getLocation();
-			Bukkit.getRegionScheduler().run(ShopkeepersPlugin.getInstance(), location, task -> {
+			Bukkit.getRegionScheduler().run(ShopkeepersPlugin.getInstance(), view.getPlayer().getLocation(), task -> {
 				if (view.getPlayer().getOpenInventory() != view) return;
 
 				inventory.setItem(rawSlot, this.toEditorEquipmentItem(equipmentSlot, null));
@@ -221,8 +222,7 @@ public abstract class AbstractEquipmentEditorHandler extends UIHandler {
 		if (leftClick && !ItemUtils.isEmpty(cursorClone)) {
 			assert cursorClone != null;
 			// Place the item from the cursor:
-			Location location = view.getPlayer().getLocation();
-			Bukkit.getRegionScheduler().run(ShopkeepersPlugin.getInstance(), location, task -> {
+			Bukkit.getRegionScheduler().run(ShopkeepersPlugin.getInstance(), view.getPlayer().getLocation(), task -> {
 				if (view.getPlayer().getOpenInventory() != view) return;
 
 				cursorClone.setAmount(1);

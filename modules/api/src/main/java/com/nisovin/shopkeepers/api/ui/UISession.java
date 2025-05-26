@@ -1,5 +1,6 @@
 package com.nisovin.shopkeepers.api.ui;
 
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
@@ -90,11 +91,11 @@ public interface UISession {
 	/**
 	 * {@link #deactivateUI() Deactivates} the UI, {@link #close() closes} this UI session after a
 	 * short delay (within the next tick) and then runs the given task.
-	 * 
-	 * @param task
-	 *            the task, or <code>null</code>
+	 *
+	 * @param task    the task, or <code>null</code>
+	 * @param location 位置
 	 */
-	public void closeDelayedAndRunTask(@Nullable Runnable task);
+	public void closeDelayedAndRunTask(@Nullable Runnable task, Location location);
 
 	/**
 	 * Aborts this UI session.

@@ -458,7 +458,7 @@ public abstract class AbstractEditorHandler extends UIHandler {
 		ItemStack item = Settings.previousPageItem.createItemStack();
 		ItemUtils.setItemMeta(item, itemName, Messages.buttonPreviousPageLore, ItemUtils.MAX_STACK_SIZE);
 		// Note: Can exceed the item's natural max stack size.
-		item.setAmount(MathUtils.trim(prevPage, 1, ItemUtils.MAX_STACK_SIZE));
+		item.setAmount(MathUtils.clamp(prevPage, 1, ItemUtils.MAX_STACK_SIZE));
 		return item;
 	}
 
@@ -477,7 +477,7 @@ public abstract class AbstractEditorHandler extends UIHandler {
 		ItemStack item = Settings.nextPageItem.createItemStack();
 		ItemUtils.setItemMeta(item, itemName, Messages.buttonNextPageLore, ItemUtils.MAX_STACK_SIZE);
 		// Note: Can exceed the item's natural max stack size.
-		item.setAmount(MathUtils.trim(nextPage, 1, ItemUtils.MAX_STACK_SIZE));
+		item.setAmount(MathUtils.clamp(nextPage, 1, ItemUtils.MAX_STACK_SIZE));
 		return item;
 	}
 
@@ -489,7 +489,7 @@ public abstract class AbstractEditorHandler extends UIHandler {
 		ItemStack item = Settings.currentPageItem.createItemStack();
 		ItemUtils.setItemMeta(item, itemName, Messages.buttonCurrentPageLore, ItemUtils.MAX_STACK_SIZE);
 		// Note: Can exceed the item's natural max stack size.
-		item.setAmount(MathUtils.trim(page, 1, ItemUtils.MAX_STACK_SIZE));
+		item.setAmount(MathUtils.clamp(page, 1, ItemUtils.MAX_STACK_SIZE));
 		return item;
 	}
 

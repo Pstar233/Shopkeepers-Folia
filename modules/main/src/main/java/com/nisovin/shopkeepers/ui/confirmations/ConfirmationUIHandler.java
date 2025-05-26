@@ -1,6 +1,7 @@
 package com.nisovin.shopkeepers.ui.confirmations;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -34,8 +35,9 @@ public class ConfirmationUIHandler extends UIHandler {
 	// example when another inventory is opened for the player).
 	private final Runnable onCancelled;
 	private boolean playerDecided = false;
+	private Location location;
 
-	ConfirmationUIHandler(ConfirmationUIConfig config, Runnable action, Runnable onCancelled) {
+	ConfirmationUIHandler(ConfirmationUIConfig config, Runnable action, Runnable onCancelled, Location location) {
 		super(SKDefaultUITypes.CONFIRMATION());
 		Validate.notNull(config, "config is null");
 		Validate.notNull(action, "action is null");
@@ -43,6 +45,7 @@ public class ConfirmationUIHandler extends UIHandler {
 		this.config = config;
 		this.action = action;
 		this.onCancelled = onCancelled;
+		this.location = location;
 	}
 
 	@Override
@@ -98,10 +101,10 @@ public class ConfirmationUIHandler extends UIHandler {
 		int slot = event.getRawSlot();
 		if (slot == SLOT_CONFIRM) {
 			playerDecided = true;
-			uiSession.closeDelayedAndRunTask(action);
+			uiSession.closeDelayedAndRunTask(action, location);
 		} else if (slot == SLOT_CANCEL) {
 			playerDecided = true;
-			uiSession.closeDelayedAndRunTask(onCancelled);
+			uiSession.closeDelayedAndRunTask(onCancelled, location);
 		}
 	}
 

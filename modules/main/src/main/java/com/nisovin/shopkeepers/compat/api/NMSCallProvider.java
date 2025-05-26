@@ -1,7 +1,11 @@
 package com.nisovin.shopkeepers.compat.api;
 
+import org.bukkit.NamespacedKey;
+import org.bukkit.entity.Chicken;
+import org.bukkit.entity.Cow;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Pig;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Salmon;
 import org.bukkit.event.block.BlockExplodeEvent;
@@ -105,5 +109,44 @@ public interface NMSCallProvider {
 
 	public default void setSalmonVariant(Salmon salmon, String variant) {
 		// Not supported by default.
+	}
+
+	// MC 1.21.5+ TODO Can be removed once we only support Bukkit 1.21.5+
+
+	/**
+	 * Whether this MC version supports item hover events with the item SNBT in the "value" field.
+	 * This is no longer supported in MC version 1.21.5 and above.
+	 * 
+	 * @return <code>true</code> if item SNBT hover event values are supported
+	 */
+	public default boolean supportsItemSNBTHoverEvents() {
+		return false;
+	}
+
+	public default void setCowVariant(Cow cow, NamespacedKey variant) {
+		// Not supported by default.
+	}
+
+	public default NamespacedKey cycleCowVariant(NamespacedKey variant, boolean backwards) {
+		// Not supported by default.
+		return variant;
+	}
+
+	public default void setPigVariant(Pig pig, NamespacedKey variant) {
+		// Not supported by default.
+	}
+
+	public default NamespacedKey cyclePigVariant(NamespacedKey variant, boolean backwards) {
+		// Not supported by default.
+		return variant;
+	}
+
+	public default void setChickenVariant(Chicken chicken, NamespacedKey variant) {
+		// Not supported by default.
+	}
+
+	public default NamespacedKey cycleChickenVariant(NamespacedKey variant, boolean backwards) {
+		// Not supported by default.
+		return variant;
 	}
 }

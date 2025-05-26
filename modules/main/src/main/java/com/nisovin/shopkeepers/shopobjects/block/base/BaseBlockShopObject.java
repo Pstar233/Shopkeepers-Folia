@@ -3,8 +3,6 @@ package com.nisovin.shopkeepers.shopobjects.block.base;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
-import com.nisovin.shopkeepers.SKShopkeepersPlugin;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -171,10 +169,10 @@ public abstract class BaseBlockShopObject extends AbstractBlockShopObject {
 	protected abstract @Nullable BlockData createBlockData();
 
 	/**
-	 * 根据区块商店的当前状态更新生成的区块。
+	 * Updates the spawned block according to the block shop's current state.
 	 * <p>
-	 * 如果区块商店当前未激活，即未生成，则这可能不起作用
-	 * 或者如果块当前不是预期的类型。
+	 * This may have no effect if the block shop is not active currently, i.e. if it is not spawned
+	 * or if the block is not of the expected type currently.
 	 */
 	protected abstract void updateBlock();
 
@@ -183,18 +181,15 @@ public abstract class BaseBlockShopObject extends AbstractBlockShopObject {
 		Block block = this.block;
 		if (block == null) return;
 
-		// 清理:
+		// Cleanup:
 		this.cleanUpBlock(block);
 
-		// 删除块
-		Location location = block.getLocation();
-		Bukkit.getRegionScheduler().run(SKShopkeepersPlugin.getInstance(), location, task -> {
-			block.setType(Material.AIR, false);
-			this.block = null;
+		// Remove the block:
+		block.setType(Material.AIR, false);
+		this.block = null;
 
-			//通知对象 ID 更改：
-			this.onIdChanged();
-		});
+		// Inform about the object id change:
+		this.onIdChanged();
 	}
 
 	// Any clean up that needs to happen for the block.

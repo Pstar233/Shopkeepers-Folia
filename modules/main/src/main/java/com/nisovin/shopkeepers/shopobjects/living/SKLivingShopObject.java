@@ -6,14 +6,20 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
-
 import org.bukkit.Difficulty;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.Bukkit;
 import org.bukkit.block.Block;
-import org.bukkit.entity.*;
+import org.bukkit.entity.Ageable;
+import org.bukkit.entity.Breedable;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
+import org.bukkit.entity.Raider;
+import org.bukkit.entity.Steerable;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.EntityEquipment;
@@ -266,7 +272,7 @@ public class SKLivingShopObject<E extends LivingEntity>
 		spawnLocation.add(0.0D, -distanceToGround, 0.0D);
 	}
 
-	// 生成前需要做的任何准备工作。可能只允许有限的作。
+	// Any preparation that needs to be done before spawning. Might only allow limited operations.
 	protected void prepareEntity(@NonNull E entity) {
 		// Assign metadata for easy identification by other plugins:
 		ShopkeeperMetadata.apply(entity);
@@ -289,7 +295,8 @@ public class SKLivingShopObject<E extends LivingEntity>
 		}
 
 		// Some entities (e.g. striders) may randomly spawn with a saddle that does not count as
-		// equipment:
+		// equipment: TODO MC 1.21.5+: Might no longer be the case due to the saddle being part of
+		// the equipment now.
 		if (entity instanceof Steerable) {
 			Steerable steerable = (Steerable) entity;
 			steerable.setSaddle(false);
@@ -299,15 +306,8 @@ public class SKLivingShopObject<E extends LivingEntity>
 		NMSManager.getProvider().prepareEntity(entity);
 	}
 
-	// 需要对实体进行的任何清理。实体可能尚未完全设置。
+	// Any clean up that needs to happen for the entity. The entity might not be fully setup yet.
 	protected void cleanUpEntity() {
-
-		// 如果是禁用插件。 跳过所有调度，直接清空引用
-		if (!SKShopkeepersPlugin.getInstance().isEnabled()) {
-			this.entity = null;
-			return;
-		}
-
 		Entity entity = Unsafe.assertNonNull(this.entity);
 
 		// Disable AI:
@@ -316,17 +316,14 @@ public class SKLivingShopObject<E extends LivingEntity>
 		// Remove metadata again:
 		ShopkeeperMetadata.remove(entity);
 
-		// 删除实体（如果尚未删除）：
-
-		Location location = entity.getLocation();
-		Bukkit.getRegionScheduler().run(SKShopkeepersPlugin.getInstance(), location, task -> {
-			if (!entity.isDead()) {
-				entity.setPersistent(false);
-				if (!Bukkit.getServer().isStopping()) {
-					entity.remove();
-				}
+		// Remove the entity (if it hasn't been removed already):
+		if (!entity.isDead()) {
+			entity.setPersistent(false);
+			if (!Bukkit.getServer().isStopping()) {
+				entity.remove();
 			}
-		});
+		}
+
 		this.entity = null;
 	}
 
@@ -334,46 +331,48 @@ public class SKLivingShopObject<E extends LivingEntity>
 	@Override
 	public boolean spawn() {
 		if (entity != null) {
-			return true; // 已生成
+			return true; // Already spawned
 		}
 
-		// 准备生成位置：
+		// Prepare spawn location:
 		Location spawnLocation = this.getSpawnLocation();
-
 		if (spawnLocation == null) {
-			return false; // 世界未加载
+			return false; // World not loaded
 		}
-
 		World world = Unsafe.assertNonNull(spawnLocation.getWorld());
 
 		// Spawn entity:
 		// TODO Check if the block is passable before spawning there?
 		EntityType entityType = this.getEntityType();
 		Class<? extends Entity> entityClass = Unsafe.assertNonNull(entityType.getEntityClass());
-		// 注意：我们希望这种类型的实体是可生成的，并且不会导致
+		// Note: We expect this type of entity to be spawnable, and not result in an
 		// IllegalArgumentException.
-		Bukkit.getRegionScheduler().run(SKShopkeepersPlugin.getInstance(), spawnLocation, task -> {
-			E ent = (E) world.spawn(spawnLocation, entityClass, e -> {
-				e.setPersistent(false);
-				prepareEntity((E) e);
-				livingShops.forceCreatureSpawn(spawnLocation, entityType);
-			});
-			this.entity = ent;
-			// 后续初始化
-			//  执行 postSpawnSetup 里面的温任务
-			postSpawnSetup(ent, spawnLocation);
+		this.entity = (E) world.spawn(spawnLocation, entityClass, entity -> {
+			entity.setPersistent(false);
+			assert entity != null;
+			// Note: This callback is run after the entity has been prepared (this includes the
+			// creation of random equipment and the random spawning of passengers) and right before
+			// the entity gets added to the world (which triggers the corresponding
+			// CreatureSpawnEvent).
+
+			// Debugging entity spawning:
+			if (entity.isDead()) {
+				Log.debug("Spawning shopkeeper entity is dead already!");
+			}
+
+			// Prepare entity, before it gets spawned:
+			prepareEntity((E) entity);
+
+			// Try to bypass entity-spawn blocking plugins (right before this specific entity is
+			// about to get spawned):
+			livingShops.forceCreatureSpawn(spawnLocation, entityType);
 		});
-
-
-		return true;
-	}
-	public void postSpawnSetup(Entity ent, Location spawnLocation){
-		E entity = (E) ent;
+		E entity = this.entity;
 		assert entity != null;
 
 		boolean success = this.isActive();
 		if (success) {
-			// 记住生成位置：
+			// Remember the spawn location:
 			this.lastSpawnLocation = spawnLocation;
 
 			// Further setup entity after it was successfully spawned:
@@ -412,7 +411,7 @@ public class SKLivingShopObject<E extends LivingEntity>
 			// Register the shop object for our custom AI processing:
 			livingShops.getLivingEntityAI().addShopObject(this);
 
-			// 防止劫匪店主参与附近的突袭：
+			// Prevent raider shopkeepers from participating in nearby raids:
 			if (entity instanceof Raider) {
 				Raider raider = (Raider) entity;
 				raider.setCanJoinRaid(false);
@@ -430,7 +429,7 @@ public class SKLivingShopObject<E extends LivingEntity>
 			this.onIdChanged();
 		} else {
 			// Failure:
-			// Debug（如果尚未调试且冷却时间已结束）：
+			// Debug, if not already debugging and cooldown is over:
 			boolean debug = (Settings.debug && !debuggingSpawn && entity.isDead()
 					&& (System.currentTimeMillis() - lastSpawnDebugMillis) > SPAWN_DEBUG_THROTTLE_MILLIS
 					&& ChunkCoords.isChunkLoaded(entity.getLocation()));
@@ -440,8 +439,8 @@ public class SKLivingShopObject<E extends LivingEntity>
 			// replaced with a debug output for now.
 			// TODO Replace this with a warning again once the underlying issue has been resolved in
 			// Spigot.
-			Log.debug("无法生成店主实体：实体已死: " + entity.isDead()
-					+ ", 实体有效: " + entity.isValid()
+			Log.debug("Failed to spawn shopkeeper entity: Entity dead: " + entity.isDead()
+					+ ", entity valid: " + entity.isValid()
 					+ ", chunk loaded: " + ChunkCoords.isChunkLoaded(entity.getLocation())
 					+ ", debug -> " + debug);
 
@@ -489,7 +488,7 @@ public class SKLivingShopObject<E extends LivingEntity>
 				Log.info(".. Done. Successful: " + success);
 			}
 		}
-		//return success;
+		return success;
 	}
 
 	/**
@@ -632,7 +631,7 @@ public class SKLivingShopObject<E extends LivingEntity>
 		}
 	}
 
-	// 如果实体已重新生成，则为 True。
+	// True if the entity was respawned.
 	private boolean respawnInactiveEntity() {
 		assert !this.isActive();
 		if (skipRespawnAttemptsIfPeaceful) {
@@ -679,7 +678,7 @@ public class SKLivingShopObject<E extends LivingEntity>
 				}
 			} // Else: The entity might have moved into a chunk that was then unloaded.
 
-			// Despawn （iée. cleanup） 之前生成但不再活动的实体：
+			// Despawn (i.e. cleanup) the previously spawned but no longer active entity:
 			this.despawn();
 
 			if (skipRespawnAttemptsIfPeaceful) {
@@ -690,7 +689,7 @@ public class SKLivingShopObject<E extends LivingEntity>
 		Log.debug(() -> shopkeeper.getLocatedLogPrefix() + this.getEntityType()
 				+ " is missing. Attempting respawn.");
 
-		boolean spawned = this.spawn(); // 如有必要，这将加载 chunk
+		boolean spawned = this.spawn(); // This will load the chunk if necessary
 		if (!spawned) {
 			// TODO Maybe add a setting to remove shopkeeper if it can't be spawned a certain amount
 			// of times?
@@ -789,19 +788,16 @@ public class SKLivingShopObject<E extends LivingEntity>
 	}
 
 	protected void applyName(@NonNull E entity, @Nullable String name) {
-		Location location = entity.getLocation();
-		Bukkit.getRegionScheduler().run(SKShopkeepersPlugin.getInstance(), location, task -> {
-			if (Settings.showNameplates && name != null && !name.isEmpty()) {
-				String preparedName = this.prepareName(Messages.nameplatePrefix + name);
-				// Set entity name plate:
-				entity.setCustomName(preparedName);
-				entity.setCustomNameVisible(Settings.alwaysShowNameplates);
-			} else {
-				// Remove name plate:
-				entity.setCustomName(null);
-				entity.setCustomNameVisible(false);
-			}
-		});
+		if (Settings.showNameplates && name != null && !name.isEmpty()) {
+			String preparedName = this.prepareName(Messages.nameplatePrefix + name);
+			// Set entity name plate:
+			entity.setCustomName(preparedName);
+			entity.setCustomNameVisible(Settings.alwaysShowNameplates);
+		} else {
+			// Remove name plate:
+			entity.setCustomName(null);
+			entity.setCustomNameVisible(false);
+		}
 	}
 
 	@Override
@@ -826,7 +822,7 @@ public class SKLivingShopObject<E extends LivingEntity>
 	 * This might be called relatively frequently to check if a given effect equals one of the
 	 * default effects. It is therefore recommended that this returns a cached collection, instead
 	 * of creating a new collection on each invocation.
-	 *
+	 * 
 	 * @return an unmodifiable view on the entity's default potion effects, not <code>null</code>
 	 */
 	protected Collection<? extends PotionEffect> getDefaultPotionEffects() {
@@ -846,7 +842,7 @@ public class SKLivingShopObject<E extends LivingEntity>
 			@Nullable PotionEffect activeEffect = PotionUtils.findIgnoreDuration(activePotionEffects, effect);
 			if (activeEffect != null
 					&& (activeEffect.getDuration() == PotionEffect.INFINITE_DURATION
-					|| activeEffect.getDuration() > CHECK_PERIOD_TICKS)) {
+							|| activeEffect.getDuration() > CHECK_PERIOD_TICKS)) {
 				return;
 			}
 
@@ -895,7 +891,7 @@ public class SKLivingShopObject<E extends LivingEntity>
 	 * can still be applied programmatically via the API.
 	 * <p>
 	 * Can be overridden by sub-types.
-	 *
+	 * 
 	 * @return An unmodifiable view on the editable equipment slots. Not <code>null</code>, but can
 	 *         be empty. The order of the returned slots defines the order in the editor.
 	 */
@@ -905,16 +901,23 @@ public class SKLivingShopObject<E extends LivingEntity>
 		}
 
 		switch (this.getEntityType()) {
-			case LLAMA: // Dedicated button for carpet (armor slot)
-			case TRADER_LLAMA: // Dedicated button for carpet (armor slot)
-			case HORSE: // Dedicated button for horse armor (armor slot)
-				return Collections.emptyList();
-			case VINDICATOR: // The main hand item is only visible during a chase.
-				return EquipmentUtils.EQUIPMENT_SLOTS_HEAD;
-			case ENDERMAN: // Item in hand is mapped to the carried block
-				return EquipmentUtils.EQUIPMENT_SLOTS_MAINHAND;
-			default:
-				return EquipmentUtils.getSupportedEquipmentSlots(this.getEntityType());
+		case PIG: // Dedicated button for saddle
+		case STRIDER: // Dedicated button for saddle
+		case LLAMA: // Dedicated button for carpet (armor slot)
+		case TRADER_LLAMA: // Dedicated button for carpet (armor slot)
+		case HORSE: // Dedicated button for horse armor (armor slot) and saddle
+		case MULE: // Dedicated button for saddle
+		case DONKEY: // Dedicated button for saddle
+		case CAMEL: // Dedicated button for saddle
+		case ZOMBIE_HORSE: // Dedicated button for saddle
+		case SKELETON_HORSE: // Dedicated button for saddle
+			return Collections.emptyList();
+		case VINDICATOR: // The main hand item is only visible during a chase.
+			return EquipmentUtils.EQUIPMENT_SLOTS_HEAD;
+		case ENDERMAN: // Item in hand is mapped to the carried block
+			return EquipmentUtils.EQUIPMENT_SLOTS_MAINHAND;
+		default:
+			return EquipmentUtils.getSupportedEquipmentSlots(this.getEntityType());
 		}
 	}
 
@@ -1019,14 +1022,14 @@ public class SKLivingShopObject<E extends LivingEntity>
 			) {
 				editorSession.getUISession().closeDelayedAndRunTask(() -> {
 					openEquipmentEditor(editorSession.getPlayer(), false);
-				});
+				}, editorSession.getPlayer().getLocation());
 				return true;
 			}
 
 			@Override
 			protected void onActionSuccess(EditorSession editorSession, InventoryClickEvent clickEvent) {
-				//该按钮仅打开设备编辑器：跳过 ShopkeeperEditedEvent 和
-				//储蓄。
+				// The button only opens the equipment editor: Skip the ShopkeeperEditedEvent and
+				// saving.
 			}
 		};
 	}
@@ -1043,7 +1046,7 @@ public class SKLivingShopObject<E extends LivingEntity>
 
 					// Call shopkeeper edited event:
 					Shopkeeper shopkeeper = this.getShopkeeper();
-					Bukkit.getPluginManager().callEvent(new ShopkeeperEditedEvent(shopkeeper, player));
+					Bukkit.getServer().getPluginManager().callEvent(new ShopkeeperEditedEvent(shopkeeper, player));
 
 					// Save:
 					shopkeeper.save();

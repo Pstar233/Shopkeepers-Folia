@@ -128,7 +128,7 @@ public class PlayerArgument extends CommandArgument<Player> {
 	}
 
 	/**
-	 * Gets a {@link Player} which matches the given name input.
+	 * Gets a {@link Player} that matches the given name input.
 	 * <p>
 	 * This can be overridden if a different behavior is required. You may also want to override
 	 * {@link #getNameCompletionSuggestions(CommandInput, CommandContextView, int, String)} and

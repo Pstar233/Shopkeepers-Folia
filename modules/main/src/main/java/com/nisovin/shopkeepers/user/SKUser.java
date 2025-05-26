@@ -43,6 +43,20 @@ public final class SKUser implements User {
 	}
 
 	/**
+	 * Gets a {@link User} for the given {@link Player}.
+	 * <p>
+	 * This method may cache and reuse the returned {@link User} object for future calls of this
+	 * method.
+	 * 
+	 * @param player
+	 *            the player
+	 * @return the user, not <code>null</code>
+	 */
+	public static User of(Player player) {
+		return of(player.getUniqueId(), player.getName());
+	}
+
+	/**
 	 * A {@link User} with nil UUID and undefined name.
 	 * <p>
 	 * The name of this user is not guaranteed to remain constant across plugin versions, so do not

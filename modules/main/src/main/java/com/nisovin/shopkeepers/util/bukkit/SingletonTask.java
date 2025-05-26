@@ -1,11 +1,10 @@
 package com.nisovin.shopkeepers.util.bukkit;
 
 import java.util.concurrent.TimeUnit;
-
 import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.plugin.Plugin;
-import org.bukkit.scheduler.BukkitTask;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.nisovin.shopkeepers.api.internal.util.Unsafe;
@@ -162,17 +161,17 @@ public abstract class SingletonTask {
 	}
 
 	/**
-	 * Requests an (asynchronous) execution of the task.
+	 * 请求 （异步） 执行任务。
 	 * <p>
-	 * If an asynchronous execution is already in progress, the task will be executed again once the
-	 * current execution completes.
+	 * 如果异步执行已在进行中，则一旦
+	 * 当前执行完成。
 	 * <p>
-	 * During plugin disable (after the plugin has already been marked as {@link Plugin#isEnabled()
-	 * disabled}), asynchronous executions are not supported. Any execution requests will then take
-	 * place immediately.
+	 * 在插件禁用期间（在插件已被标记为 {@link Plugin#isEnabled（） 之后
+	 * disabled}），则不支持异步执行。然后，任何执行请求都将采用
+	 * 立即放置。
 	 * <p>
-	 * This method cannot be called from within an execution, i.e. from within {@link #prepare()},
-	 * {@link #execute()}, or {@link #syncCallback()}.
+	 * 此方法不能从执行中调用，即从 {@link #prepare（）} 中调用，
+	 * {@link #execute（）} 或 {@link #syncCallback（）}。
 	 */
 	public final void run() {
 		if (plugin.isEnabled()) {
@@ -376,7 +375,7 @@ public abstract class SingletonTask {
 	 * custom distinct type that derives from this type. The behavior of this task cannot be changed
 	 * by subclasses.
 	 */
-	public abstract class InternalAsyncTask implements Runnable {
+	public abstract class InternalAsyncTask{
 
 		private @Nullable ScheduledTask task; // Captured Bukkit task
 
@@ -384,15 +383,12 @@ public abstract class SingletonTask {
 		}
 
 		private ScheduledTask runTaskAsynchronously() {
-			this.task = Bukkit.getAsyncScheduler().runNow(plugin, task1 -> this.run());
-			//this.task = Bukkit.getScheduler().runTaskAsynchronously(plugin, this);
+			this.task = Bukkit.getAsyncScheduler().runNow(plugin, t -> {
+				executeTask(task);
+			});
 			return task;
 		}
 
-		@Override
-		public final void run() {
-			executeTask(task);
-		}
 	}
 
 	/**
@@ -403,10 +399,10 @@ public abstract class SingletonTask {
 	protected abstract InternalAsyncTask createInternalAsyncTask();
 
 	/**
-	 * The type of the task determines how it is shown and merged with other tasks in timings
-	 * reports. This task class is only exposed so that subclasses can construct task instances of a
-	 * custom distinct type that derives from this type. The behavior of this task cannot be changed
-	 * by subclasses.
+	 * 任务的类型决定了它在计时中的显示方式以及与其他任务的合并方式
+	 * 报告。此任务类仅公开，以便子类可以构造
+	 * 从此类型派生的自定义单值类型。无法更改此任务的行为
+	 * 按子类。
 	 */
 	public class InternalSyncCallbackTask implements Runnable {
 		@Override

@@ -114,7 +114,8 @@ public final class MathUtils {
 	}
 
 	/**
-	 * Calculates the closest value in the specified range.
+	 * Clamps the value to the specified range, returning the closest bound if the value is outside
+	 * the range.
 	 * 
 	 * @param value
 	 *            the value
@@ -122,9 +123,9 @@ public final class MathUtils {
 	 *            the lower bound (inclusive)
 	 * @param max
 	 *            the upper bound (inclusive)
-	 * @return the value within the specified range
+	 * @return the value clamped to the specified range
 	 */
-	public static int trim(int value, int min, int max) {
+	public static int clamp(int value, int min, int max) {
 		if (value <= min) return min;
 		if (value >= max) return max;
 		return value;

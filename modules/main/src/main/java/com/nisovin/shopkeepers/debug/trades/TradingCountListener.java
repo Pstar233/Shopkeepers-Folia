@@ -75,7 +75,9 @@ public class TradingCountListener implements Listener {
 		Log.debug("Listening for non-shopkeeper trades of player " + tradingPlayer.getName()
 				+ " ...");
 		this.tradingPlayer = tradingPlayer;
-		stopListeningTask = Bukkit.getGlobalRegionScheduler().run(plugin, task ->  stopListeningAction.run());
+		stopListeningTask = Bukkit.getGlobalRegionScheduler().run(plugin, task -> {
+			stopListeningAction.run();
+		});
 	}
 
 	private void stopListeningForTrades() {

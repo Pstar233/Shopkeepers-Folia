@@ -54,7 +54,6 @@ import com.nisovin.shopkeepers.shopobjects.AbstractShopObject;
 import com.nisovin.shopkeepers.shopobjects.AbstractShopObjectType;
 import com.nisovin.shopkeepers.shopobjects.ShopObjectData;
 import com.nisovin.shopkeepers.text.Text;
-import com.nisovin.shopkeepers.ui.SKDefaultUITypes;
 import com.nisovin.shopkeepers.ui.UIHandler;
 import com.nisovin.shopkeepers.ui.trading.TradingHandler;
 import com.nisovin.shopkeepers.util.annotations.ReadWrite;
@@ -139,9 +138,9 @@ public abstract class AbstractShopkeeper implements Shopkeeper {
 
 	private boolean initialized = false;
 
-	private int id; // 初始化后有效且恒定
+	private int id; // Valid and constant after initialization
 	private UUID uniqueId = Unsafe.uncheckedNull(); // Not null and constant after initialization
-	private AbstractShopObject shopObject = Unsafe.uncheckedNull(); // 初始化后不为空
+	private AbstractShopObject shopObject = Unsafe.uncheckedNull(); // Not null after initialization
 	// TODO Move location information into ShopObject?
 	// Immutable instances, null for virtual shops, always has a world name:
 	private @Nullable BlockLocation location;
@@ -246,14 +245,15 @@ public abstract class AbstractShopkeeper implements Shopkeeper {
 	}
 
 	/**
-	 * 根据给定的 {@link ShopCreationData} 初始化此店主。
-	 *
-	 * 店主 ID
+	 * Initializes this shopkeeper based on the given {@link ShopCreationData}.
+	 * 
+	 * @param id
+	 *            the shopkeeper id
 	 * @param shopCreationData
-	 * 店铺创建数据，不<code>为空</code>
+	 *            the shop creation data, not <code>null</code>
 	 * @throws ShopkeeperCreateException
-	 * 如果 Shopkeeper 无法正确初始化
-	 * @see AbstractShopType# createShopkeeper（int， ShopCreationData）
+	 *             if the shopkeeper cannot be properly initialized
+	 * @see AbstractShopType#createShopkeeper(int, ShopCreationData)
 	 */
 	protected void loadFromCreationData(int id, ShopCreationData shopCreationData)
 			throws ShopkeeperCreateException {
@@ -289,7 +289,10 @@ public abstract class AbstractShopkeeper implements Shopkeeper {
 		}
 		this.updateChunkCoords();
 
-		this.shopObject = this.createShopObject((AbstractShopObjectType<?>) shopObjectType, shopCreationData);
+		this.shopObject = this.createShopObject(
+				(AbstractShopObjectType<?>) shopObjectType,
+				shopCreationData
+		);
 
 		// Automatically mark new shopkeepers as dirty:
 		this.markDirty();
@@ -313,10 +316,10 @@ public abstract class AbstractShopkeeper implements Shopkeeper {
 	 * {@link #onAdded(ShopkeeperAddedEvent.Cause)} may be better suited.
 	 */
 	protected void setup() {
-		// Add a default trading handler, if none is provided:
-		if (this.getUIHandler(DefaultUITypes.TRADING()) == null) {
-			this.registerUIHandler(new TradingHandler(SKDefaultUITypes.TRADING(), this));
-		}
+		// Default trading handler:
+		this.registerUIHandlerIfMissing(DefaultUITypes.TRADING(), () -> {
+			return new TradingHandler(this);
+		});
 	}
 
 	/**
@@ -411,14 +414,7 @@ public abstract class AbstractShopkeeper implements Shopkeeper {
 		return shopType;
 	}
 
-	// 如果店主正在加载，则 shopCreationData 可以为 null。
-
-	/**
-	 * 创建商店对象
-	 * @param objectType
-	 * @param shopCreationData
-	 * @return
-	 */
+	// shopCreationData can be null if the shopkeeper is getting loaded.
 	private AbstractShopObject createShopObject(
 			AbstractShopObjectType<?> objectType,
 			@Nullable ShopCreationData shopCreationData
@@ -1547,10 +1543,10 @@ public abstract class AbstractShopkeeper implements Shopkeeper {
 	}
 
 	/**
-	 * Registers an {@link UIHandler} which handles a specific type of user interface for this
+	 * Registers a {@link UIHandler} that implements a specific type of user interface for this
 	 * shopkeeper.
 	 * <p>
-	 * This replaces any {@link UIHandler} which has been previously registered for the same
+	 * This replaces any {@link UIHandler} that has been previously registered for the same
 	 * {@link UIType}.
 	 * 
 	 * @param uiHandler
@@ -1562,11 +1558,30 @@ public abstract class AbstractShopkeeper implements Shopkeeper {
 	}
 
 	/**
-	 * Gets the {@link UIHandler} this shopkeeper is using for the specified {@link UIType}.
+	 * Registers a {@link UIHandler} that implements a specific type of user interface for this
+	 * shopkeeper if no other UI handler is registered yet.
 	 * 
 	 * @param uiType
-	 *            the UI type
-	 * @return the UI handler, or <code>null</code> if none is available
+	 *            the {@link UIType}
+	 * @param uiHandlerSupplier
+	 *            the {@link UIHandler} supplier
+	 */
+	public final void registerUIHandlerIfMissing(
+			UIType uiType,
+			Supplier<UIHandler> uiHandlerSupplier
+	) {
+		Validate.notNull(uiHandlerSupplier, "uiHandlerSupplier is null");
+		if (this.getUIHandler(uiType) == null) {
+			this.registerUIHandler(uiHandlerSupplier.get());
+		}
+	}
+
+	/**
+	 * Gets the {@link UIHandler} for the given {@link UIType}.
+	 * 
+	 * @param uiType
+	 *            the {@link UIType}, not <code>null</code>
+	 * @return the {@link UIHandler}, or <code>null</code> if the UI is not supported
 	 */
 	public final @Nullable UIHandler getUIHandler(UIType uiType) {
 		Validate.notNull(uiType, "uiType is null");
@@ -1585,14 +1600,41 @@ public abstract class AbstractShopkeeper implements Shopkeeper {
 		return this.openWindow(DefaultUITypes.EDITOR(), player);
 	}
 
-	// Shortcut to check if the sender has access to the editor, taking the bypass permission into
-	// account for non-player CommandSenders.
+	@Override
+	public final boolean openTradingWindow(Player player) {
+		return this.openWindow(DefaultUITypes.TRADING(), player);
+	}
+
+	/***
+	 * Checks if the given {@link CommandSender} has access to the editor.
+	 * <p>
+	 * For players, this delegates to {@link UIHandler#canAccess(Player, boolean)} of the configured
+	 * editor {@link UIHandler}. If no editor {@link UIHandler} is found, this returns
+	 * <code>false</code>. For non-player {@link CommandSender}s, this checks the bypass permission.
+	 * 
+	 * @param sender
+	 *            the {@link CommandSender}, not <code>null</code>
+	 * @param silent
+	 *            <code>true</code> to omit any feedback that might otherwise be sent to the sender
+	 * @return <code>true</code> if the sender can edit this shopkeeper
+	 */
 	public final boolean canEdit(CommandSender sender, boolean silent) {
 		return this.canAccess(sender, DefaultUITypes.EDITOR(), silent);
 	}
 
-	// Shortcut for checking if the sender has access to the given UI type, taking the bypass
-	// permission into account for non-player CommandSenders.
+	/***
+	 * Checks if the given {@link CommandSender} has access to the specified {@link UIType}.
+	 * <p>
+	 * For players, this delegates to {@link UIHandler#canAccess(Player, boolean)} of the configured
+	 * {@link UIHandler}. If no {@link UIHandler} is found, this returns <code>false</code>. For
+	 * non-player {@link CommandSender}s, this checks the bypass permission.
+	 * 
+	 * @param sender
+	 *            the {@link CommandSender}, not <code>null</code>
+	 * @param silent
+	 *            <code>true</code> to omit any feedback that might otherwise be sent to the sender
+	 * @return <code>true</code> if the sender can access the UI this shopkeeper
+	 */
 	public final boolean canAccess(CommandSender sender, UIType uiType, boolean silent) {
 		var uiHandler = this.getUIHandler(uiType);
 		if (uiHandler == null) return false;
@@ -1605,11 +1647,6 @@ public abstract class AbstractShopkeeper implements Shopkeeper {
 			// command senders):
 			return PermissionUtils.hasPermission(sender, ShopkeepersPlugin.BYPASS_PERMISSION);
 		}
-	}
-
-	@Override
-	public final boolean openTradingWindow(Player player) {
-		return this.openWindow(DefaultUITypes.TRADING(), player);
 	}
 
 	// INTERACTION HANDLING

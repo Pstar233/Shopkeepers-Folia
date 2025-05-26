@@ -1,8 +1,8 @@
 package com.nisovin.shopkeepers.ui;
 
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.checkerframework.checker.nullness.qual.Nullable;
-
 import com.nisovin.shopkeepers.SKShopkeepersPlugin;
 import com.nisovin.shopkeepers.api.ShopkeepersPlugin;
 import com.nisovin.shopkeepers.api.ui.UISession;
@@ -88,18 +88,18 @@ public final class SKUISession implements UISession {
 	}
 
 	@Override
-	public void closeDelayedAndRunTask(@Nullable Runnable task) {
+	public void closeDelayedAndRunTask(@Nullable Runnable task, Location location) {
 		if (!this.isValid()) return;
 
 		this.deactivateUI();
 		// This fails during plugin disable. However, all UIs will be closed anyway.
-		SchedulerUtils.runTaskOrOmit(ShopkeepersPlugin.getInstance(), () -> {
+		SchedulerUtils.runRegionScheduler(ShopkeepersPlugin.getInstance(), () -> {
 			if (!this.isValid()) return;
 			close();
 			if (task != null) {
 				task.run();
 			}
-		});
+		}, location);
 	}
 
 	@Override
@@ -118,13 +118,13 @@ public final class SKUISession implements UISession {
 
 		this.deactivateUI();
 		// This fails during plugin disable. However, all UIs will be closed anyway.
-		SchedulerUtils.runTaskOrOmit(ShopkeepersPlugin.getInstance(), () -> {
+		SchedulerUtils.runRegionScheduler(ShopkeepersPlugin.getInstance(), () -> {
 			if (!this.isValid()) return;
 			abort();
 			if (task != null) {
 				task.run();
 			}
-		});
+		}, player.getLocation());
 	}
 
 	/**

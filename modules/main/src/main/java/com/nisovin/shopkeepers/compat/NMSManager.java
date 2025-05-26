@@ -34,6 +34,7 @@ public final class NMSManager {
 	// frequently.
 	static {
 		// Registered in the order from latest to oldest.
+		register(new CompatVersion("1_21_R5", "1.21.5", "7ecad754373a5fbc43d381d7450c53a5"));
 		register(new CompatVersion("1_21_R4", "1.21.4", "60ac387ca8007aa018e6aeb394a6988c"));
 		register(new CompatVersion("1_21_R3", "1.21.3", "61a218cda78417b6039da56e08194083"));
 		// Note: 1.21.2 was immediately replaced by 1.21.3 and is not supported.

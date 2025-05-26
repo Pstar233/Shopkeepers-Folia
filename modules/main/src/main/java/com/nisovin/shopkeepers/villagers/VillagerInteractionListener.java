@@ -214,7 +214,7 @@ public class VillagerInteractionListener implements Listener {
 				player,
 				entity
 		);
-		Bukkit.getPluginManager().callEvent(fakeDamageEvent);
+		Bukkit.getServer().getPluginManager().callEvent(fakeDamageEvent);
 		return !fakeDamageEvent.isCancelled();
 	}
 }

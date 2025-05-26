@@ -7,7 +7,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Difficulty;
 import org.bukkit.FluidCollisionMode;
@@ -377,6 +379,10 @@ public final class EntityUtils {
 			return rayTraceResult.getHitEntity(); // Can be null
 		}
 		return null;
+	}
+
+	public static Stream<Player> getOnlinePlayersStream() {
+		return Unsafe.castNonNull(Bukkit.getOnlinePlayers().stream());
 	}
 
 	private EntityUtils() {

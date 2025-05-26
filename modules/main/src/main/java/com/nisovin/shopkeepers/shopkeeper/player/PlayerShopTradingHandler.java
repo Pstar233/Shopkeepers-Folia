@@ -10,7 +10,6 @@ import com.nisovin.shopkeepers.api.internal.util.Unsafe;
 import com.nisovin.shopkeepers.api.shopkeeper.player.PlayerShopkeeper;
 import com.nisovin.shopkeepers.config.Settings;
 import com.nisovin.shopkeepers.lang.Messages;
-import com.nisovin.shopkeepers.ui.SKDefaultUITypes;
 import com.nisovin.shopkeepers.ui.trading.Trade;
 import com.nisovin.shopkeepers.ui.trading.TradingContext;
 import com.nisovin.shopkeepers.ui.trading.TradingHandler;
@@ -24,7 +23,7 @@ public abstract class PlayerShopTradingHandler extends TradingHandler {
 	protected @Nullable ItemStack @Nullable [] newContainerContents = null;
 
 	protected PlayerShopTradingHandler(AbstractPlayerShopkeeper shopkeeper) {
-		super(SKDefaultUITypes.TRADING(), shopkeeper);
+		super(shopkeeper);
 	}
 
 	@Override

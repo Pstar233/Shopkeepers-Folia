@@ -58,12 +58,12 @@ public class SKBookPlayerShopkeeper
 
 	@Override
 	protected void setup() {
-		if (this.getUIHandler(DefaultUITypes.EDITOR()) == null) {
-			this.registerUIHandler(new BookPlayerShopEditorHandler(this));
-		}
-		if (this.getUIHandler(DefaultUITypes.TRADING()) == null) {
-			this.registerUIHandler(new BookPlayerShopTradingHandler(this));
-		}
+		this.registerUIHandlerIfMissing(DefaultUITypes.EDITOR(), () -> {
+			return new BookPlayerShopEditorHandler(this);
+		});
+		this.registerUIHandlerIfMissing(DefaultUITypes.TRADING(), () -> {
+			return new BookPlayerShopTradingHandler(this);
+		});
 		super.setup();
 	}
 

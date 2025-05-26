@@ -14,7 +14,7 @@ import com.nisovin.shopkeepers.util.java.Validate;
 import java.util.concurrent.TimeUnit;
 
 /**
- * 处理非活跃玩家拥有的商店的移除。
+ * Handles the removal of shops that are owned by inactive players.
  */
 public class PlayerInactivity {
 
@@ -38,18 +38,18 @@ public class PlayerInactivity {
 		task.stop();
 	}
 
-/**
-	 * 此任务会定期触发对非活动商店的检测和移除
-	 *球员。
+	/**
+	 * This task periodically triggers the detection and removal of shops that are owned by inactive
+	 * players.
 	 * <p>
-	 * 该任务也会在启动后不久运行。
+	 * The task is also run shortly after being started.
 	 * <p>
-	 * 由于我们以天为单位来衡量玩家的不活跃状态，并且由于检查
-	 * 非活跃玩家相对注重性能，我们很少运行此任务。它
-	 * 也不要求此任务完全按照指定的时间间隔运行，即
-	 * 不太可能，因为服务器滞后会显著影响确切的间隔持续时间。这
-	 * 此任务的主要目的是考虑长时间运行的服务器
-	 * 持续时间。
+	 * Since we measure player inactivity in granularity of days, and since the checking for
+	 * inactive players is relatively performance-intensive, we run this task very infrequently. It
+	 * is also not required that this task runs exactly in the specified interval, which is
+	 * unlikely, because server lag can noticeably influence the exact interval duration. The
+	 * primary purpose of this task is to account for servers that keep running for very long
+	 * durations.
 	 */
 	private final class DeleteInactivePlayerShopsTask implements Runnable {
 
@@ -67,10 +67,10 @@ public class PlayerInactivity {
 		public void start() {
 			this.stop(); // Stop the task if it is already running
 
-			// 该任务在启动后不久运行一次，然后以较大的间隔定期运行：
-			task = Bukkit.getAsyncScheduler().runAtFixedRate(plugin,t -> {
-				run();
-			}, 5L * 50, INTERVAL_TICKS * 50, TimeUnit.MILLISECONDS);
+			// The task runs once shortly after start, and then periodically in large intervals:
+			task = Bukkit.getAsyncScheduler().runAtFixedRate(plugin, task1 -> {
+				this.run();
+			}, (5L * 50), (INTERVAL_TICKS * 50), TimeUnit.MILLISECONDS);
 		}
 
 		public void stop() {

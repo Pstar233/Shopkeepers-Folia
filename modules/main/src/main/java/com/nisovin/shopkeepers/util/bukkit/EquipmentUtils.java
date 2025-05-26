@@ -41,6 +41,9 @@ public class EquipmentUtils {
 	// TODO Added in Bukkit 1.20.5
 	public static final Optional<EquipmentSlot> EQUIPMENT_SLOT_BODY;
 
+	// TODO Added in Bukkit 1.21.5
+	public static final Optional<EquipmentSlot> EQUIPMENT_SLOT_SADDLE;
+
 	// Common supported equipment slot combinations:
 	// Lists for fast iteration and lookup by index. No duplicate or null elements.
 	// Element order consistent with EquipmentSlot enum.
@@ -52,10 +55,15 @@ public class EquipmentUtils {
 	public static final List<? extends EquipmentSlot> EQUIPMENT_SLOTS_MAINHAND;
 	public static final List<? extends EquipmentSlot> EQUIPMENT_SLOTS_HEAD;
 	public static final List<? extends EquipmentSlot> EQUIPMENT_SLOTS_BODY;
+	public static final List<? extends EquipmentSlot> EQUIPMENT_SLOTS_SADDLE;
+	public static final List<? extends EquipmentSlot> EQUIPMENT_SLOTS_BODY_AND_SADDLE;
 
 	static {
 		@Nullable EquipmentSlot bodySlot = EnumUtils.valueOf(EquipmentSlot.class, "BODY");
 		EQUIPMENT_SLOT_BODY = Optional.ofNullable(bodySlot);
+
+		@Nullable EquipmentSlot saddleSlot = EnumUtils.valueOf(EquipmentSlot.class, "SADDLE");
+		EQUIPMENT_SLOT_SADDLE = Optional.ofNullable(saddleSlot);
 
 		EQUIPMENT_SLOTS = Collections.unmodifiableList(Arrays.asList(EquipmentSlot.values()));
 
@@ -91,6 +99,14 @@ public class EquipmentUtils {
 		// Added in MC 1.20.5:
 		EQUIPMENT_SLOTS_BODY = bodySlot == null ? Collections.emptyList()
 				: Collections.singletonList(Unsafe.assertNonNull(bodySlot));
+
+		// Added in MC 1.21.5:
+		EQUIPMENT_SLOTS_SADDLE = saddleSlot == null ? Collections.emptyList()
+				: Collections.singletonList(Unsafe.assertNonNull(saddleSlot));
+		EQUIPMENT_SLOTS_BODY_AND_SADDLE = Collections.unmodifiableList(Unsafe.cast(Arrays.asList(
+				bodySlot,
+				saddleSlot
+		).stream().filter(x -> x != null).toList()));
 	}
 
 	/**
@@ -104,6 +120,19 @@ public class EquipmentUtils {
 	 */
 	public static List<? extends EquipmentSlot> getSupportedEquipmentSlots(EntityType entityType) {
 		switch (entityType.name()) {
+		case "PIG":
+		case "STRIDER":
+		case "SKELETON_HORSE":
+		case "ZOMBIE_HORSE":
+		case "MULE":
+		case "DONKEY":
+		case "CAMEL":
+			// MC 1.21.5: Saddle is now an equipment slot.
+			return EQUIPMENT_SLOTS_SADDLE;
+		// MC 1.21.5: Saddle is now an equipment slot.
+		// Body: Horse armor (EquipmentSlot added in Bukkit 1.20.5)
+		case "HORSE":
+			return EQUIPMENT_SLOTS_BODY_AND_SADDLE;
 		case "PLAYER":
 		case "ARMOR_STAND":
 		case "ZOMBIE":
@@ -137,23 +166,48 @@ public class EquipmentUtils {
 		case "EVOKER": // Head: Only certain items are rendered
 		case "ILLUSIONER": // Head: Only certain items are rendered
 			return EQUIPMENT_SLOTS_HEAD;
-		case "LLAMA": // Carpet (EquipmentSlot added in Bukkit 1.20.5)
-		case "TRADER_LLAMA": // Carpet (EquipmentSlot added in Bukkit 1.20.5)
-		case "HORSE": // Horse armor (EquipmentSlot added in Bukkit 1.20.5)
-		case "WOLF": // Wolf armor MC 1.20.5
+		// Body: Carpet (EquipmentSlot added in Bukkit 1.20.5). Does not support saddle.
+		case "LLAMA":
+		case "TRADER_LLAMA":
+		case "WOLF": // Body: Wolf armor MC 1.20.5
 			return EQUIPMENT_SLOTS_BODY;
 		default:
 			return Collections.emptyList();
 		}
 
-		/* Notes on other mobs:
-		 * - Strider: Saddle is a separate property.
+		/* Notes on other mob properties:
 		 * - Snow golem: Pumpkin head is a separate property.
-		 * - Pig: Saddle is a separate property.
 		 * - Mule: Chest is a separate property.
 		 * - Donkey: Chest is a separate property.
 		 * - Enderman: Carried block is a separate property.
 		 */
+	}
+
+	/**
+	 * Checks whether the given entity type supports a saddle (and the saddle has a visual effect).
+	 * 
+	 * @param entityType
+	 *            the entity type
+	 * @return <code>true</code> if the entity type supports a saddle
+	 */
+	public static boolean supportsSaddle(EntityType entityType) {
+		switch (entityType) {
+		case PIG:
+		case STRIDER:
+			// AbstractHorse:
+		case HORSE:
+		case SKELETON_HORSE:
+		case ZOMBIE_HORSE:
+		case MULE:
+		case DONKEY:
+		case CAMEL:
+			return true;
+		// Llama extends AbstractHorse, but the saddle is not displayed:
+		case LLAMA:
+		case TRADER_LLAMA:
+		default:
+			return false;
+		}
 	}
 
 	private EquipmentUtils() {

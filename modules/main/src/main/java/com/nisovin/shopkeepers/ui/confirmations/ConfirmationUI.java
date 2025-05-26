@@ -18,7 +18,7 @@ public final class ConfirmationUI {
 		Validate.notNull(action, "action is null");
 		Validate.notNull(onCancelled, "onCancelled is null");
 
-		ConfirmationUIHandler ui = new ConfirmationUIHandler(config, action, onCancelled);
+		ConfirmationUIHandler ui = new ConfirmationUIHandler(config, action, onCancelled, player.getLocation());
 		// Note: This also closes any previous UI and thereby also aborts any previously active UI
 		// confirmation request.
 		SKShopkeepersPlugin.getInstance().getUIRegistry().requestUI(ui, player);
